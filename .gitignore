@@ -8,6 +8,7 @@
 !.commitlintrc.json
 !.versionrc.json
 !.stylelintrc.json
+DS_Store
 
 # bundler cache
 _site
