@@ -5,7 +5,7 @@ tags: [test, naver, open-source]
 categories:
 ---
 
-> 모든 예제 코드는 [GitHub](https://github.com/songkg7/java-practice/tree/main/fixture-monkey-demo)에서 보실 수 있습니다.
+> 예제 코드는 [GitHub](https://github.com/songkg7/java-practice/tree/main/fixture-monkey-demo)에서 보실 수 있습니다.
 {: .prompt-info }
 
 > 이 글은 오픈소스를 개인적으로 살펴보며 작성한 글이므로 잘못된 부분이 있을 수 있습니다. 얼마든지 지적해주시면 감사하겠습니다.
@@ -78,7 +78,6 @@ lottoNumber: LottoNumber(number=-1640)
 `Setter` 를 제거하고 사용하려면 `ConstructorPropertiesArbitraryGenerator` 를 사용해야하니 코드를 약간 수정해보자.
 
 ```java
-@ToString
 public class LottoNumber {
 
     private final int number;
@@ -110,13 +109,13 @@ class LottoNumberTest {
 ```
 
 `LottoNumber` 에서 `Setter` 를 제거하고 `FixtureMonkey.builder()` 를 사용해서 기본 동작하는 Generator 를 바꿔주면 `Setter` 가 없어도 객체 생성을 할 수 있다.
+`@ConstructorProperties` 가 필요하지만 이에 대한 내용은 조금 뒤에 다룬다.
 
 ### 불변 객체엔 BuilderArbitraryGenerator
 
 이번에는 공식 문서에서 불변객체 생성이 가능하다고 알려주고 있는 `BuilderArbitraryGenerator` 를 한 번 살펴보자.
 
 ```java
-@ToString
 @Builder
 public class LottoNumber {
 
@@ -162,7 +161,7 @@ public class LottoNumber {
 
     private final int number;
 
-    @Builder(access = lombok.AccessLevel.PRIVATE)
+    @Builder(access = AccessLevel.PRIVATE)
     private LottoNumber(int number) {
         this.number = number;
     }
@@ -339,7 +338,7 @@ Java 16 부터 정식으로 추가된 `record` 는 DTO 같은 데이터를 담�
 
 단지 `ConstructorPropertiesArbitraryGenerator` 를 사용하기 위해서, `@ConstructorProperties` 라는 자주 사용되지 않는 어노테이션을 사용해야 되는 점도 마치 Swagger 를 사용하는 듯한 인상을 준다. Swagger 가 annotaion 으로 문서화를 하도록 강요하면서 production 코드를 얼마나 지저분하게 만드는지 떠올려보면 아무런 거리낌없이 받아들이기 힘든 부분이 분명 존재한다.
 
-물론 개발자 세계에서 유일한 진리로 여겨지는 **"은총알은 없다"** 라는 말을 떠올려보면 어느 정도 트레이드 오프가 필요한 영역이라고 생각되며, 상황에 따라 적절한 생성 전략을 선택하면 되겠다. 향후 업데이트로 다른 객체 생성 전략이 추가될 것 같기도 하니 기대할만한 오픈소스임에는 틀림없다고 생각한다.
+물론 **"은총알은 없다"** 라는 말을 떠올려보면 어느 정도 트레이드오프(trade-off)가 필요한 영역이라고 생각되며, 상황에 따라 적절한 생성 전략을 선택하면 되겠다. 향후 업데이트로 다른 객체 생성 전략이 추가될 것 같기도 하니 기대할만한 오픈소스임에는 틀림없다고 생각한다.
 
 ## Conclusion
 
