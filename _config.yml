@@ -95,7 +95,7 @@ comments:
     shortname:    # fill with the Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
   # utterances settings › https://utteranc.es/
   utterances:
-    repo: songkg7/songkg7.github.io        # <gh-username>/<repo>
+    repo: songkg7/devlog-comment
     issue_term: pathname  # < url | pathname | title | ...>
   # Giscus options › https://giscus.app
   giscus:
