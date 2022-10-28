@@ -2,7 +2,7 @@
 title: "[Kubernetes] 쿠버네티스 훑어보기"
 date: 2022-07-22 16:46:00 +0900
 tags: [kubernetes, minikube, devops]
-categories: [DevOps]
+categories: [Infra]
 ---
 
 ## What is kubernetes?
@@ -219,7 +219,7 @@ http localhost:8080/ping
 
 ### Reference
 
-- https://kubernetes.io/ko/docs/tasks/access-application-cluster/web-ui-dashboard/
+- <https://kubernetes.io/ko/docs/tasks/access-application-cluster/web-ui-dashboard/>
 
 ---
 

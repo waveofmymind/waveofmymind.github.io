@@ -1,8 +1,8 @@
 ---
 title: "Why Docker?"
 date: 2022-07-28 19:29:00 +0900
-tags: [devops, docker]
-categories: [DevOps]
+tags: [Infra, docker]
+categories: [Infra]
 ---
 
 > 이 글은 사내 정보 공유를 위해 작성되었기 때문에 Java 개발환경을 기준으로 설명합니다.

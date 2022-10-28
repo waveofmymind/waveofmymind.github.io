@@ -2,7 +2,7 @@
 title: "Docker volume"
 date: 2022-08-03 13:38:00 +0900
 tags: [devops, docker, volume]
-categories: [DevOps]
+categories: [Infra]
 ---
 
 ## Overview
