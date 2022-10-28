@@ -12,6 +12,8 @@ categories: [Infra, Docker]
 
 확인해보니 `/var/run/docker.sock` 가 정상적으로 설정되있지 않다는 내용이 출력되었는데 이를 해결하기 위한 방법을 공유한다.
 
+## Description
+
 해당 문제는 Docker desktop `4.13.0` 에서 나타나는 현상이다.
 
 > _By default Docker will not create the /var/run/docker.sock symlink on the host and use the docker-desktop CLI context instead._ (see: [https://docs.docker.com/desktop/release-notes/](https://docs.docker.com/desktop/release-notes/))
@@ -25,6 +27,8 @@ desktop-linux *     moby                                                        
 ```
 
 이 `unix:///Users/<USER>/.docker/run/docker.sock` 을 대상으로 연결되게끔 실행하면 정상적으로 동작하게 된다.
+
+## Solution
 
 아래 명령어로 symbolic link 를 직접 생성하여 해결할 수 있다.
 
