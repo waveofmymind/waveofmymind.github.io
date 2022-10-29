@@ -26,11 +26,17 @@ default             moby                Current DOCKER_HOST based configuration 
 desktop-linux *     moby                                                          unix:///Users/<USER>/.docker/run/docker.sock
 ```
 
-이 `unix:///Users/<USER>/.docker/run/docker.sock` 을 대상으로 연결되게끔 실행하면 정상적으로 동작하게 된다.
+default context 를 사용하도록 설정해주거나 `unix:///Users/<USER>/.docker/run/docker.sock` 을 대상으로 연결되게끔 실행하면 정상적으로 동작하게 된다.
 
 ## Solution
 
-아래 명령어로 symbolic link 를 직접 생성하여 해결할 수 있다.
+다음 명령어를 실행해보고 docker 가 정상적으로 동작하는지 확인한다.
+
+```bash
+docker context use default
+```
+
+해결되지 않았다면, 아래 명령어로 symbolic link 를 직접 생성하여 해결할 수 있다.
 
 ```bash
 sudo ln -svf /Users/<USER>/.docker/run/docker.sock /var/run/docker.sock
