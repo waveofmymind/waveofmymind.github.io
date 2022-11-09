@@ -1,14 +1,14 @@
 ---
-title: "difftastic"
+title: "diff 를 좀 더 직관적으로, difftastic"
 date: 2022-11-09 12:53:00 +0900
 aliases:
-tags: [tool, git, diff]
+tags: [tool, git, diff, difftastic]
 categories:
 ---
 
 ## Overview
 
-`git diff` 를 좀 더 편리하게 사용할 수 있도록 만들어주는 툴.
+`git diff` 를 편리하게 사용할 수 있도록 만들어주는 툴.
 터미널에서 `git diff` 명령어를 사용하는 경우가 잦을 경우 아주 유용하게 사용할 수 있다.
 
 ## Usage
