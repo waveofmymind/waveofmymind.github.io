@@ -16,7 +16,7 @@ Exception: Failed to convert value of type 'java.lang.String' to required type '
 
 특정 포맷도 convert 할 수 있도록 하기 위해서는 어떤 설정을 해줘야 할까요? 이번 글에서는 변환 방법에 대해서 알아봅니다.
 
-## Example
+## Contents
 
 간단한 샘플 예제를 하나 만들어 보겠습니다.
 
