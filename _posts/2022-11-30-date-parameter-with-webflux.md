@@ -2,8 +2,8 @@
 title: "WebFlux 에서 Date type 을 url parameter 로 사용하기"
 date: 2022-11-22 11:28:00 +0900
 aliases:
-tags: [webflux, localdatetime, url]
-categories:
+tags: [webflux, localdatetime, url, parameter]
+categories: Java
 ---
 
 ## Overview
