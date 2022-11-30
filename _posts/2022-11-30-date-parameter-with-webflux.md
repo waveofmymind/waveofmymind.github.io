@@ -206,7 +206,7 @@ public record Event(
 - `@DateTimeFormat` : 적용이 간단. 전역 설정보다 우선도가 높으므로 특정 필드만 다른 포맷을 사용해야할 경우 등 타겟팅하여 적용하는 것이 가능.
 - `WebFluxConfigurer` : 적용이 상대적으로 복잡하지만, 프로젝트 규모가 어느 정도 커져서 일관된 설정 적용이 필요할 경우 `@DateTimeFormat` 에 비해 압도적 유리. 일부 필드에 실수로 annotation 을 작성하지 않는 등의 휴먼 에러를 방지할 수 있음.
 
-> 모든 예제 코드는 [GitHub](https://github.com/songkg7/java-practice) 에서 확인하실 수 있습니다.
+> 모든 예제 코드는 [GitHub](https://github.com/songkg7/java-practice/blob/main/spring-webflux-parameter-sample/src/test/java/com/example/springwebfluxparametersample/controller/EventControllerTest.java) 에서 확인하실 수 있습니다.
 {: .prompt-info }
 
 ## Reference
