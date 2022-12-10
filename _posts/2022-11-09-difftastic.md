@@ -3,7 +3,7 @@ title: "diff 를 좀 더 직관적으로, difftastic"
 date: 2022-11-09 12:53:00 +0900
 aliases:
 tags: [tool, git, diff, difftastic]
-categories:
+categories: [Tools]
 ---
 
 ## Overview
