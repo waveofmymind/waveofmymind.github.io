@@ -6,9 +6,6 @@ tags: [test, spring, mockito, junit, java, mock]
 categories: Spring
 ---
 
-> 혹시 잘못된 내용이 있다면 얼마든지 피드백 부탁드립니다.
-{: .prompt-info }
-
 ## Overview
 
 모든 프로젝트에서 테스트 코드를 작성하는 것은 이제 일상이 된지 오래다. 프로젝트가 성장해나간다면 필연적으로 테스트의 수도 많아지면서 전체 테스트 수행시간이 점점 길어지게 된다. 특히 Spring framework 을 기반으로 하는 프로젝트의 테스트를 쓰고 있다면 Spring Bean 의 Context loading 에 의해서 테스트 실행이 급격하게 느려지게 되는데, 오늘은 Spring Context 를 불어오는 시간을 어떻게 해결했는지 작성해보고자 한다.
