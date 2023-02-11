@@ -2,7 +2,7 @@
 title: "[Kubernetes] 쿠버네티스 훑어보기"
 date: 2022-07-22 16:46:00 +0900
 tags: [kubernetes, minikube, devops]
-categories: [Infra]
+categories: [DevOps]
 ---
 
 ## What is kubernetes?

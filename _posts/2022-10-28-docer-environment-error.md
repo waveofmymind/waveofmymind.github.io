@@ -3,7 +3,7 @@ title: "Could not find a valid Docker environment"
 date: 2022-10-28 11:26:00 +0900
 aliases:
 tags: [error, docker]
-categories: [Infra, Docker]
+categories: [DevOps, Docker]
 ---
 
 ## Overview
