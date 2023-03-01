@@ -202,7 +202,7 @@ Obsidian 만의 특별한 문법들은 정규표현식을 사용해서 처리했
 
 ### Community plugin release 를 위한 PR 생성
 
-이제 community plugin 으로 등록하기 위해 PR 을 작성해주는 것으로 마무리합니다. 당연하지만 커뮤니티 가이드라인을 지키지 않으면 반려될 수 있으니 주의해야 합니다. 또한, Obsidian 에서 플러그인을 개발할 때 주의해야할 부분들을 문서로 안내하고 있으니 최대한 맞춰서 개발합니다.
+이제 community plugin 으로 등록하기 위해 [PR](https://github.com/obsidianmd/obsidian-releases/pull/1678) 을 작성해주는 것으로 마무리합니다. 당연하지만 커뮤니티 가이드라인을 지키지 않으면 반려될 수 있으니 주의해야 합니다. 또한, Obsidian 에서 플러그인을 개발할 때 주의해야할 부분들을 문서로 안내하고 있으니 최대한 맞춰서 개발합니다.
 
 ![image](/assets/img/2023-02-22-develop-obsidian-plugin/Obsidian-releases-pr.png)
 
@@ -233,6 +233,14 @@ Java 나 Kotlin 만 사용하다가 TypeScript 를 사용하려니 익숙하지 
 - image resize syntax 지원
 - 변환 과정에서 에러 발생시 롤백을 위한 트랜잭션 구현
 - 다른 모듈 추가를 위한 추상화 처리
+
+---
+
+## Release 🚀
+
+약 6일간의 Code review 를 거쳐서 PR 이 merge 되었습니다. 이제 Obsidian Community plugin 에서 사용할 수 있게 되었습니다. 🎉
+
+![image](/assets/img/2023-02-22-develop-obsidian-plugin/released-plugin.png)
 
 ## Reference
 
