@@ -4,7 +4,6 @@ date: 2023-01-02 12:54:00 +0900
 aliases:
 tags: [remind, life, 글또]
 categories: ETC
-pin: true
 ---
 
 ## 들어가기 전에
