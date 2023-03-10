@@ -14,14 +14,14 @@ Spring Batch `JdbcPagingItemReader` 를 사용 중 `sortKeys` 를 다음과 같�
 
 ```java
 ...
-	.selectClause("SELECT *")
-	.fromClause("FROM big_partitioned_table_" + yearMonth)
-	.sortKeys(Map.of(
-					"timestamp", Order.ASCENDING,
-					"mmsi", Order.ASCENDING,
-					"imo_no", Order.ASCENDING
-			)
-	)
+  .selectClause("SELECT *")
+  .fromClause("FROM big_partitioned_table_" + yearMonth)
+  .sortKeys(Map.of(
+          "timestamp", Order.ASCENDING,
+          "mmsi", Order.ASCENDING,
+          "imo_no", Order.ASCENDING
+      )
+  )
 ...
 ```
 
