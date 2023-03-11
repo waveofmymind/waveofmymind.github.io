@@ -167,19 +167,29 @@ class FrontMatterConverter {
   -string filename
   -string resourcePath
   -bool isEnable
+  +setNext(Converter next) Converter
+  +convert(string input) string
 }
 AbstractConverter <|-- FrontMatterConverter
 
 class ResourceLinkConverter {
   -O2Plugin plugin
   -string title
+  +setNext(Converter next) Converter
+  +convert(string input) string
 }
 AbstractConverter <|-- ResourceLinkConverter
 
-class BracketConverter
+class BracketConverter {
+  +setNext(Converter next) Converter
+  +convert(string input) string
+}
 AbstractConverter <|-- BracketConverter
 
-class CalloutConverter
+class CalloutConverter {
+  +setNext(Converter next) Converter
+  +convert(string input) string
+}
 AbstractConverter <|-- CalloutConverter
 ```
 
