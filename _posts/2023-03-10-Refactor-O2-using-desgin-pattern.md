@@ -170,7 +170,7 @@ class FrontMatterConverter {
   +setNext(Converter next) Converter
   +convert(string input) string
 }
-AbstractConverter <|-- FrontMatterConverter
+AbstractConverter <-- FrontMatterConverter
 
 class ResourceLinkConverter {
   -O2Plugin plugin
@@ -178,19 +178,19 @@ class ResourceLinkConverter {
   +setNext(Converter next) Converter
   +convert(string input) string
 }
-AbstractConverter <|-- ResourceLinkConverter
+AbstractConverter <-- ResourceLinkConverter
 
 class BracketConverter {
   +setNext(Converter next) Converter
   +convert(string input) string
 }
-AbstractConverter <|-- BracketConverter
+AbstractConverter <-- BracketConverter
 
 class CalloutConverter {
   +setNext(Converter next) Converter
   +convert(string input) string
 }
-AbstractConverter <|-- CalloutConverter
+AbstractConverter <-- CalloutConverter
 ```
 
 이제 가장 작은 단위의 기능만 구현된 각각의 `Converter` 들을 조합하여 동작을 순서대로 수행하게끔 chain 을 구성해줍니다. 이 패턴의 이름이 Chain of responsibility(책임 연쇄)인 이유입니다.
@@ -228,6 +228,51 @@ call(convert) -.call.-> fm
  ```
 
 이런 부분은 개발자가 직접 신경써줘야 되는 부분 중 하나이기 때문에 얼마든지 실수의 여지가 있으므로 이후 개선해야할 부분 중 하나입니다. 예를 들면, `Converter` 를 직접 호출하지 않고 변환 과정을 실행시키기 위해 일종의 `Context` 를 구현하여 `Converter` 들을 담아놓고 `Context` 의 함수를 호출하는 방식으로 개선할 수 있겠습니다. 이 내용은 다음 버전에서 구현해볼 예정입니다.
+
+---
+
+### 1.3.0
+
+[PR](https://github.com/songkg7/o2/pull/61) 에 의해 같은 기능을 수행하지만 상속을 사용하지 않고 컴포지션을 통해 좀 더 유연한 구조를 갖도록 수정됐습니다.
+
+```mermaid
+classDiagram
+class ConverterChain {
+ -List~Converter~ converters
+ +chaining(Converter converter) ConverterChain
+ +converting(string input) string
+}
+class Converter {
+ <<interface>>
+ +convert(string input) string
+}
+Converter--*ConverterChain
+
+class FrontMatterConverter {
+  -string filename
+  -string resourcePath
+  -bool isEnable
+  +convert(string input) string
+}
+Converter <|-- FrontMatterConverter
+
+class ResourceLinkConverter {
+  -O2Plugin plugin
+  -string title
+  +convert(string input) string
+}
+Converter <|-- ResourceLinkConverter
+
+class WikiLinkConverter {
+  +convert(string input) string
+}
+Converter <|-- WikiLinkConverter
+
+class CalloutConverter {
+  +convert(string input) string
+}
+Converter <|-- CalloutConverter
+```
 
 ## Conclusion
 
