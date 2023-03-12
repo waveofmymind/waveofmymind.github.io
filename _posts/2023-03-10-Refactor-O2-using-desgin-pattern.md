@@ -231,7 +231,7 @@ call(convert) -.call.-> fm
 
 ---
 
-### 1.3.0
+### 2023-03-12 Update
 
 [PR](https://github.com/songkg7/o2/pull/61) 에 의해 같은 기능을 수행하지만 상속을 사용하지 않고 컴포지션을 통해 좀 더 유연한 구조를 갖도록 수정됐습니다.
 
@@ -246,7 +246,7 @@ class Converter {
  <<interface>>
  +convert(string input) string
 }
-Converter--*ConverterChain
+ConverterChain*--Converter
 
 class FrontMatterConverter {
   -string filename
