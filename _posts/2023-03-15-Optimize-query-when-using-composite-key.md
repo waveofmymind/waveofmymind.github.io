@@ -160,7 +160,7 @@ void test() {
 ![image](/assets/img/2023-03-15-Optimize-query-when-using-composite-key/hive_webtoon_q3.png)
 _웹툰 하이브 中_
 
-parameter 가 query 의 변화를 인지하지 못하고 여전히 6개의 parameter 를 전달하며 `out of index` 를 발생시킵니다.
+parameter 가 query 의 변화를 인지하지 못하고 여전히 6개의 parameter 를 전달하며 `out of range` 를 발생시킵니다.
 
 ![image](/assets/img/2023-03-15-Optimize-query-when-using-composite-key/Screenshot-2023-03-13-오후-6.02.40.png)
 
