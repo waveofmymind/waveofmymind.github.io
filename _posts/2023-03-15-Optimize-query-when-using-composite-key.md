@@ -66,7 +66,7 @@ PostgreSQL 에서는 복합키를 tuple 로 관리하기 때문에 tuple 을 사
 ```sql
 SELECT *
 FROM large_table
-WHERE (create_at, user_id, content_no) > ('2023-01-28 06:58:13.000000', '441997000', '9070711')
+WHERE (create_at, user_id, content_no) > (?, ?, ?)
 ORDER BY create_at, user_id, content_no
 LIMIT 1000;
 ```
