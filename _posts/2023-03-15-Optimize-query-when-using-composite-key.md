@@ -36,7 +36,7 @@ LIMIT 1000;
 
 ### 여러 개의 정렬 조건을 사용하는 경우
 
-**문제는 복합키를 사용하는 테이블을 조회해야하는 경우**입니다. 쿼리를 생성해주는 `PagingQueryProvider` 는 sortKey 를 기반으로 where 절을 생성해주는데요, 3개의 컬럼으로 구성된 복합키를 sortKey 로 사용하게 되면 아래와 같은 쿼리를 생성해줍니다.
+**문제는 복합키를 사용하는 테이블을 조회해야하는 경우**입니다. `PagingQueryProvider` 는 sortKey 를 기반으로 where 절을 생성해주는데요, 3개의 컬럼으로 구성된 복합키를 sortKey 로 사용하게 되면 아래와 같은 쿼리를 생성해줍니다.
 
 ```sql
 SELECT *
@@ -160,7 +160,7 @@ void test() {
 ![image](/assets/img/2023-03-15-Optimize-query-when-using-composite-key/hive_webtoon_q3.png)
 _웹툰 하이브 中_
 
-parameter 가 query 의 변화를 인지하지 못하고 여전히 6개의 parameter 를 전달하며 `out of range` 를 발생시킵니다.
+query 의 변화를 인지하지 못하고 여전히 6개의 parameter 가 전달되며 `out of range` 를 발생시킵니다.
 
 ![image](/assets/img/2023-03-15-Optimize-query-when-using-composite-key/Screenshot-2023-03-13-오후-6.02.40.png)
 
