@@ -231,4 +231,6 @@ private List<Object> getParameterList(Map<String, Object> values, Map<String, Ob
 
 - [Stack overflow](https://stackoverflow.com/questions/34110504/optimize-query-with-offset-on-large-table)
 
+---
+
 [^fn-nth-1]: https://jojoldu.tistory.com/528
