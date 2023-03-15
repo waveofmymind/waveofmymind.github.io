@@ -179,19 +179,9 @@ _반복문으로 돌면서 sortKey size 에 적합한 parameter 를 생성한다
 
 ```java
 private List<Object> getParameterList(Map<String, Object> values, Map<String, Object> sortKeyValue) {
-    SortedMap<String, Object> sm = new TreeMap<>();
-    if (values != null) {
-        sm.putAll(values);
-    }
-
+    // ...
     // where 절에 설정되어야 하는 파라미터를 증가시키지 않고 반환한다.
-    List<Object> parameterList = new ArrayList<>(sortKeyValue.values());
-
-    parameterList.addAll(sm.values());
-    if (logger.isDebugEnabled()) {
-        logger.debug("Using parameterList:" + parameterList);
-    }
-    return parameterList;
+    return new ArrayList<>(sortKeyValue.values());
 }
 ```
 
