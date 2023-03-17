@@ -29,7 +29,7 @@ ORDER BY id
 LIMIT 1000;
 ```
 
-보시다시피 Spring Batch 에서는 `JdbcPagingItemReader` 를 사용할 경우 offset 을 사용하지 않고, sortKey 를 기반으로 where 절을 생성하여 paging 처리를 해줍니다. 덕분에 수억건의 데이터가 존재하는 테이블을 조회하더라도 지연없이 빠르게 읽는 것이 가능합니다.
+보시다시피 Spring Batch 에서는 `JdbcPagingItemReader` 를 사용할 경우 offset 을 사용하는 대신 where 절을 생성하여 paging 처리를 해줍니다. 덕분에 수억건의 데이터가 존재하는 테이블을 조회하더라도 지연없이 빠르게 읽는 것이 가능합니다.
 
 > `LIMIT` 이 있더라도 `OFFSET` 은 이전 데이터를 전부 다시 읽어야 합니다. 따라서, 읽어야하는 데이터가 많아지면 많아질수록 점점 느려지게 됩니다. 자세한 정보는 게시글[^fn-nth-1]을 참조해주세요.
 {: .prompt-tip}
