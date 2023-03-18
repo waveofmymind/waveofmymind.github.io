@@ -4,6 +4,7 @@ date: 2023-02-22 15:40:00 +0900
 aliases: 
 tags: [obsidian, plugin, side-project, typescript, o2]
 categories: 
+image: /assets/img/banner/og-image.png
 ---
 
 ## Overview

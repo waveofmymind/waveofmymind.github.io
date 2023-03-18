@@ -1,10 +1,11 @@
 ---
-title: "[O2] Design pattern 으로 코드 생산성 개선하기"
+title: "O2 - Design pattern 으로 코드 생산성 개선하기"
 date: 2023-03-10 16:10:00 +0900
 aliases: 
 tags: [typescript, obsidian, o2, design-pattern]
 mermaid: true
 categories: 
+image: /assets/img/banner/og-image.png
 ---
 
 [O2](https://github.com/songkg7/o2) 프로젝트를 좀 더 유연하게 관리할 수 있도록 디자인 패턴을 사용하여 구조를 개선하는 과정을 이야기합니다.
