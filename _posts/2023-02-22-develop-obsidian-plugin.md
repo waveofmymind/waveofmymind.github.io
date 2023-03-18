@@ -1,5 +1,5 @@
 ---
-title: "O2 - Obsidian plugin 개발하기"
+title: "[O2] Obsidian plugin 개발하기"
 date: 2023-02-22 15:40:00 +0900
 aliases: 
 tags: [obsidian, plugin, side-project, typescript, o2]

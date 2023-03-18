@@ -1,5 +1,5 @@
 ---
-title: "O2 - Design pattern 으로 코드 생산성 개선하기"
+title: "[O2] Design pattern 으로 코드 생산성 개선하기"
 date: 2023-03-10 16:10:00 +0900
 aliases: 
 tags: [typescript, obsidian, o2, design-pattern]
