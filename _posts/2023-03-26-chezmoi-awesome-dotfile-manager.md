@@ -112,7 +112,7 @@ exit
 
 여기까지의 과정을 시각적으로 살펴보면 아래와 같습니다.
 
-![image](/assets/img/2023-03-26-chezmoi,-awosome-dotfile-manager/chezmoi-workflow.png)
+![image](/assets/img/2023-03-26-chezmoi-awesome-dotfile-manager/chezmoi-workflow.png)
 
 ## 다른 기기에서 **chezmoi** 설정 사용하기
 
@@ -159,7 +159,7 @@ chezmoi update -v
 
 역시 시각적으로 살펴보면 아래와 같습니다.
 
-![image](/assets/img/2023-03-26-chezmoi,-awosome-dotfile-manager/using-chezmoi-second-machine.png)두 번째 기기에서 수행해야했던 모든 과정을 초기화 시점에 한 번에 적용할 수도 있습니다...! 만약 두 번째 기기가 이제 막 새로 산 기기라면 굉장히 유용할 것 같네요.
+![image](/assets/img/2023-03-26-chezmoi-awesome-dotfile-manager/using-chezmoi-second-machine.png)두 번째 기기에서 수행해야했던 모든 과정을 초기화 시점에 한 번에 적용할 수도 있습니다...! 만약 두 번째 기기가 이제 막 새로 산 기기라면 굉장히 유용할 것 같네요.
 
 ```bash
 chezmoi init --apply https://github.com/$GITHUB_USERNAME/dotfiles.git
@@ -171,7 +171,7 @@ chezmoi init --apply https://github.com/$GITHUB_USERNAME/dotfiles.git
 chezmoi init --apply $GITHUB_USERNAME
 ```
 
-![image](/assets/img/2023-03-26-chezmoi,-awosome-dotfile-manager/shorten-init.png)정말이지.. 굉장히 편리합니다...🥹 가히 23년에 알게된 오픈소스 중 최고의 오픈소스가 될 것이라고 말할 수 있을 것 같네요.
+![image](/assets/img/2023-03-26-chezmoi-awesome-dotfile-manager/shorten-init.png)정말이지.. 굉장히 편리합니다...🥹 가히 23년에 알게된 오픈소스 중 최고의 오픈소스가 될 것이라고 말할 수 있을 것 같네요.
 
 ## Conclusion
 
