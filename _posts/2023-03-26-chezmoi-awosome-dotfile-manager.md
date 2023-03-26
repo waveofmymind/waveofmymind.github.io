@@ -1,5 +1,5 @@
 ---
-title: "chezmoi, 편리하게 dotfile 관리하기"
+title: "chezmoi, 세상 편리하게 dotfile 관리하기"
 date: 2023-03-25 10:50:00 +0900
 aliases: chezmoi
 tags: [chezmoi, dotfile, dotfiles]
