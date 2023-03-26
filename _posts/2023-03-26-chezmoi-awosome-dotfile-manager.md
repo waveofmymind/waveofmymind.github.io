@@ -112,7 +112,9 @@ exit
 
 여기까지의 과정을 시각적으로 살펴보면 아래와 같습니다.
 
-![image](/assets/img/2023-03-26-chezmoi,-awosome-dotfile-manager/chezmoi-workflow.png)## 다른 기기에서 **chezmoi** 설정 사용하기
+![image](/assets/img/2023-03-26-chezmoi,-awosome-dotfile-manager/chezmoi-workflow.png)
+
+## 다른 기기에서 **chezmoi** 설정 사용하기
 
 드디어 우리가 **chezmoi** 를 쓰는 이유입니다. 두 번째 기기에서 **chezmoi** 를 사용하여 내용을 가져와보겠습니다. 저는 ssh 를 사용하도록 url 을 입력해줬습니다. 역시 **chezmoi** 가 미리 설치되어 있다고 가정합니다.
 
