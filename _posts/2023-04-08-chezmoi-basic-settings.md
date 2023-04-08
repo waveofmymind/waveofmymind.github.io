@@ -189,7 +189,7 @@ brew cleanup
 printf '\n\nInstalling cask apps...\n'
 brew install --cask ${CASKS[@]}
 
-{{ end -}}
+{% raw %}{{ end -}}{% endraw %}
 ```
 
 sh 에 익숙하지 않더라도 이해하기 크게 어렵지 않으리라 생각합니다. `PACKAGE` 목록은 `brew install` 로 설치하는 패키지들을, `CASKS` 에는 `brew install --cask` 로 설치하는 애플리케이션들을 정의해주시면 이후 스크립트에 의해 설치과정이 진행됩니다.
