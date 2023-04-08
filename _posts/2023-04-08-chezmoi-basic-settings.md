@@ -1,5 +1,5 @@
 ---
-title: "chezmoi, basic settings"
+title: "chezmoi, 본격적으로 활용하기"
 date: 2023-04-08 18:26:00 +0900
 aliases: 
 tags: [chezmoi, dotfiles]
