@@ -6,6 +6,7 @@
     "type": "git",
     "url": "git+https://github.com/cotes2020/jekyll-theme-chirpy.git"
   },
+  "type": "module",
   "author": "Cotes Chung",
   "license": "MIT",
   "bugs": {
@@ -18,7 +19,8 @@
     "prewatch": "npx rimraf assets/js/dist",
     "watch": "npx rollup -c --bundleConfigAsCjs -w",
     "test": "npx stylelint _sass/**/*.scss",
-    "fixlint": "npm run test -- --fix"
+    "fixlint": "npm run test -- --fix",
+    "webp": "node tools/imagemin"
   },
   "devDependencies": {
     "@babel/core": "^7.21.3",
@@ -31,5 +33,10 @@
     "rollup-plugin-license": "^3.0.1",
     "stylelint": "^15.3.0",
     "stylelint-config-standard-scss": "^7.0.1"
+  },
+  "dependencies": {
+    "imagemin": "^8.0.1",
+    "imagemin-webp": "^8.0.0",
+    "sharp": "^0.32.0"
   }
 }
