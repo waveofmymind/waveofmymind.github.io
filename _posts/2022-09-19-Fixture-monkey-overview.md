@@ -255,7 +255,7 @@ public class LottoNumber implements Comparable<LottoNumber> {
 }
 ```
 
-![image](/assets/img/스크린샷%202022-09-21%20오후%202.47.38.png)
+![image](/assets/img/스크린샷%202022-09-21%20오후%202.47.38.webp)
 
 테스트가 전부 통과하는 것을 확인할 수 있다.
 
@@ -297,7 +297,7 @@ void createRandomLottoNumbers() {
 ...
 ```
 
-![image2](/assets/img/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202022-09-21%20%EC%98%A4%ED%9B%84%201.30.28.png)
+![image2](/assets/img/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%202022-09-21%20%EC%98%A4%ED%9B%84%201.30.28.webp)
 _위 method 에 의해 class 의 `NoArgsConstructor` 가 호출된다._
 
 그렇다면 `ReflectionUtils` 에 생성하고자 하는 class 의 생성자 정보를 전달하면 field 에 기본 생성자가 없더라도 생성이 가능할 것이다. 다음 코드는 Reflection 을 통해 private 생성자를 찾아낸 후, 해당 생성자로 객체를 생성하는 테스트이다.

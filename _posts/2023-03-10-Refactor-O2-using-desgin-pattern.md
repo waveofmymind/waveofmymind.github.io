@@ -5,7 +5,7 @@ aliases:
 tags: [typescript, obsidian, o2, design-pattern]
 mermaid: true
 categories: 
-image: /assets/img/banner/og-image.png
+image: /assets/img/banner/og-image.webp
 ---
 
 [O2](https://github.com/songkg7/o2) 프로젝트를 좀 더 유연하게 관리할 수 있도록 디자인 패턴을 사용하여 구조를 개선하는 과정을 이야기합니다.
@@ -14,11 +14,11 @@ image: /assets/img/banner/og-image.png
 
 ~~더 글로리를 보던~~ 열심히 개발을 하던 어느 날, 모처럼 [Issue](https://github.com/songkg7/o2/issues/50) 가 하나 올라옵니다.
 
-![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/o2-issue.png)
+![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/o2-issue.webp)
 
 [Issue](https://github.com/songkg7/o2/issues/50) 내용을 반영하는 것은 어렵지 않았기에 '~~이딴 플러그인을 쓰는 사람~~ 관심을 가져주는 사람이 있다니 빨리 고쳐줘야지' 하며 코드를 살펴보던 중 그동안 미뤄놨던 문제가 수면 위로 드러나기 시작했습니다.
 
-![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/324082748_894097992036709_3032529173365854440_n.jpg){: width="500" }
+![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/324082748_894097992036709_3032529173365854440_n.webp){: width="500" }
 
 아래는 기존에 작성해뒀던 마크다운 문법 변환 코드의 구현입니다.
 
@@ -215,7 +215,7 @@ export async function convertToChirpy(plugin: O2Plugin) {
 
 마지막으로 테스트를 모두 통과하는지 확인해보고 [PR](https://github.com/songkg7/o2/pull/51)을 생성합니다.
 
-![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/test-result.png)
+![image](/assets/img/2023-03-10-Refactor-O2-using-desgin-pattern/test-result.webp)
 
 ### Next Step
 

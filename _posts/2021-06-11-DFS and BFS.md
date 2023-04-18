@@ -8,7 +8,7 @@ img_path: /assets/img/
 
 [1260번: DFS와 BFS](https://www.acmicpc.net/problem/1260)
 
-![DFS and BFS](DFS.png)
+![DFS and BFS](DFS.webp)
 
 ## 🤔 생각해보기
 

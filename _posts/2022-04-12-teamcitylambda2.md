@@ -16,7 +16,7 @@ categories: [Spring Batch]
 
 AWS Lambda 는 S3 Event trigger 를 설정할 수 있는 기능을 제공합니다. 여기서 **Event 란 객체(S3에 저장된 파일)의 생성 및 삭제 등, S3 에서 발생하는 주요 활동**을 의미합니다.
 
-![event-driven](/assets/img/teamcity/event-driven.jpg)
+![event-driven](/assets/img/teamcity/event-driven.webp)
 _Event-Driven Architecture 를 팀원들에게 소개하며 그린 그림_
 
 Event trigger 를 이용해 함수를 실행시키면 특정 조건에서 함수가 실행되도록 구성할 수 있습니다.
@@ -90,7 +90,7 @@ def lambda_handler(event, context):
 
 이제 S3 에 파일을 몇개 업로드해보면 S3 trigger 에 의해 AWS Lambda 가 동작하게 되고, TeamCity Build 가 Lambda 가 보낸 요청을 받아서 처리하는 모습을 확인할 수 있습니다.
 
-![executed by aws lambda](/assets/img/teamcity/executed%20by%20lambda.png)
+![executed by aws lambda](/assets/img/teamcity/executed%20by%20lambda.webp)
 _AWS Lambda 에 의해 배치가 실행된다._
 
 ## 정리

@@ -99,11 +99,11 @@ public class KafkaSubscribeJobConfig {
 kafka-console-producer.sh --bootstrap-server localhost:9092 --topic test
 ```
 
-![produce-topic](/assets/img/kafka-item-reader/1.png)
+![produce-topic](/assets/img/kafka-item-reader/1.webp)
 
 배치가 topic 을 정상적으로 구독하고 있는 모습을 확인할 수 있습니다.
 
-![subscribe-batch](/assets/img/kafka-item-reader/2.png)
+![subscribe-batch](/assets/img/kafka-item-reader/2.webp)
 
 `chunkSize` 를 5로 설정했기 때문에 5개씩 데이터를 묶어서 처리하게 됩니다.
 

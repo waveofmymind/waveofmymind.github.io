@@ -44,7 +44,7 @@ dependencies {
 
 이제 `./gradlew testCodeCoverageReport` 를 사용하여 모든 모듈의 테스트 결과가 집계되어 있는 jacoco report 를 만들 수 있다.
 
-![jacoco-directory](/assets/img/jacoco-aggregation-directory.png)
+![jacoco-directory](/assets/img/jacoco-aggregation-directory.webp)
 
 > aggregation 기능을 이용하려면 jar 파일이 필요하니 `jar { enable = false }` 로 설정하고 쓴다면 true 로 바꿔줘야 한다.
 {: .prompt-warning }

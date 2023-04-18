@@ -26,9 +26,9 @@ gcloud init
 
 GCP kubernetes engine 으로 접근하여 cluster 의 연결 정보를 가져와야 합니다.
 
-![스크린샷 2022-11-24 오후 1.46.43.png](/assets/img/GKE-connect.png)
+![스크린샷 2022-11-24 오후 1.46.43.png](/assets/img/GKE-connect.webp)
 
-![스크린샷 2022-11-24 오후 1.52.24.png](/assets/img/gke-cluster-connect-2.png)
+![스크린샷 2022-11-24 오후 1.52.24.png](/assets/img/gke-cluster-connect-2.webp)
 
 명령줄 액세스를 복사한 후, 터미널에서 실행해봅니다.
 
@@ -98,7 +98,7 @@ kubeconfig entry generated for sv-dev-cluster.
 
 연결이 성공하면 docker desktop 에도 변화가 생기는데요. 다음처럼 Kubernetes 탭에 새로운 정보가 표시되는 것을 확인할 수 있습니다.
 
-![스크린샷 2022-11-24 오후 1.38.01.png](/assets/img/gke-cluster-connect-3.png)
+![스크린샷 2022-11-24 오후 1.38.01.png](/assets/img/gke-cluster-connect-3.webp)
 
 이후 local 에서도 `kubectl` 을 통해서 GKE 의 리소스를 직접 확인할 수 있게 됩니다.
 

@@ -10,7 +10,7 @@ img_path: /assets/img/teamcity
 
 ## 문제 인식
 
-![비둘기](/%08%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A7%8C%20%EC%9D%B4%ED%95%B4%ED%95%98%EB%8A%94%20%EB%B9%84%EB%91%98%EA%B8%B0.jpeg)
+![비둘기](/%08%EA%B0%9C%EB%B0%9C%EC%9E%90%EB%A7%8C%20%EC%9D%B4%ED%95%B4%ED%95%98%EB%8A%94%20%EB%B9%84%EB%91%98%EA%B8%B0.webp)
 _배치가 돌아가긴 하는데..._
 
 제가 최근 본 프로젝트는 15분마다 `S3 bucket` 에 생성되는 파일을 가져와서 처리하고 새로 DB 에 저장하는 배치였습니다. 이 배치는 `Quartz` 의 `cron` 으로 1분마다 실행되며 S3 에 새로운 파일이 있는지 체크하고, 있다면 해당 파일을 처리하는 방식으로 되어 있습니다.
@@ -46,27 +46,27 @@ _설치방법은 여러 블로그에서 소개하고 있기 때문에 생략합�
 
 `TeamCity` 에 로그인한 후, 메인 페이지 우측 상단의 `New project...` 를 눌러 프로젝트를 추가해줍니다.
 
-![new project](/new%20project.png)
+![new project](/new%20project.webp)
 
  GitHub 연동을 진행하면 다음과 같은 창을 볼 수 있습니다. 원하는 Repository 를 선택합니다.
 
-![github integration](/github%20integration.png)
+![github integration](/github%20integration.webp)
 
 기본 설정은 `main` 브랜치를 감시하다가 변경사항이 발생할 경우 Repository 를 가져와서 `Build` 하도록 되어 있습니다. 저는 기본설정을 그대로 사용할 것이므로 Proceed 를 눌러줍니다.
 
-![create project from url](/create%20project%20from%20url.png)
+![create project from url](/create%20project%20from%20url.webp)
 
 ### 2. Build Step 설정
 
 저는 예제로 사용하는 sample batch 의 빌드툴로 `Gradle` 을 선택하였으므로 `Gradle Runner` 를 사용하여 빌드 단계를 구성하도록 하겠습니다. 기본값으로도 충분하므로 그대로 save 를 눌러주겠습니다. 만약 다른 빌드툴을 사용한다면 그에 맞게 구성해주면 됩니다.
 
-![build step](/build%20step.png)
+![build step](/build%20step.webp)
 
 ### 3. General Settings
 
 build 의 결과물인 **Artifact 가 저장될 경로를 설정**해줍니다. 이후 step 에서 해당 디렉토리의 `.jar` 파일을 실행시키게 됩니다.
 
-![general settings](/general%20settings.png)
+![general settings](/general%20settings.webp)
 
 > Artifact paths 의 경우 다양한 표현식을 사용하여 여러가지 경우를 대응할 수 있도록 커스텀이 가능합니다. 작성법은 링크[^fn-nth-2]를 참조해주세요.
 {: .prompt-tip}
@@ -77,13 +77,13 @@ build 의 결과물인 **Artifact 가 저장될 경로를 설정**해줍니다. 
 
 이제 실제로 배치를 실행시키는 설정을 추가하겠습니다. `Create build configuration` 을 눌러서 build 설정을 추가 후 `Build Step` 을 하나 추가합니다. Runner type 은 `Command Line` 으로 합니다.
 
-![command line](/command%20line.png)
+![command line](/command%20line.webp)
 
 `Working directory` 는 3번 과정에서 설정했던 `Artifact paths` 를 입력해주고, Run 은 `Custom script` 를 선택한 후 자신의 애플리케이션을 실행시킬 수 있는 스크립트를 입력합니다. 다 작성했다면 Save 를 누르고 왼쪽 목록 중 `Dependencies` 를 클릭하여 의존성 설정 창으로 이동합니다.
 
 ### 5. Dependencies
 
-![artifact dependencies](/artifacto%20dependencies.png)
+![artifact dependencies](/artifacto%20dependencies.webp)
 
 `Snapshot Dependencies` 는 빌드 체인의 의존성 옵션을 설정합니다. 빌드가 실패한 경우엔 어떻게 할 것인지, 빌드가 성공할 경우만 실행할지 등등 다양한 옵션이 있으니 적당한 옵션을 선택해줍니다.
 
@@ -91,13 +91,13 @@ build 의 결과물인 **Artifact 가 저장될 경로를 설정**해줍니다. 
 
 ### 6. Run
 
-![run](/run%20click.png)
+![run](/run%20click.webp)
 
 이제 빌드 체인 마지막 단계의 `Run` 버튼을 클릭해보면 의존하고 있는 빌드 스텝들이 순서대로 실행되면서 배치가 실행되는 것을 확인할 수 있습니다.
 
 만약 특정 조건에서 실행되길 원한다면 `Trigger` Tab 에서 설정할 수 있습니다.
 
-![trigger](/trigger.png)
+![trigger](/trigger.webp)
 
 저는 빌드가 성공하면 자동으로 배치가 실행되게끔 `Finish Build Trigger` 와 매일 오전 3시에 배치가 실행될 수 있도록 `Schedule Trigger` 를 설정해봤습니다. 이 `Schedule Trigger` 는 코드레벨에서 설정해야했던 `Quartz Scheduler` 의 완벽한 상위호환(!)이라 배치의 재배포나 중단없이 자연스럽고 우아하게 스케쥴링이 가능하도록 도와줍니다.
 
