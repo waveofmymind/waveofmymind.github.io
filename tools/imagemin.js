@@ -17,7 +17,6 @@ async function deleteFilesInDirectory(dir) {
 }
 
 async function updateMarkdownFile(dir) {
-  console.log(`update markdown files in ${dir}...`)
   const files = fs.readdirSync(dir);
 
   files.forEach(function (file) {
