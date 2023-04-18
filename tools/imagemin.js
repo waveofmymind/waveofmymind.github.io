@@ -16,6 +16,28 @@ async function deleteFilesInDirectory(dir) {
   });
 }
 
+async function updateMarkdownFile(dir) {
+  console.log(`update markdown files in ${dir}...`)
+  const files = fs.readdirSync(dir);
+
+  files.forEach(function (file) {
+    const filePath = path.join(dir, file);
+    const extname = path.extname(filePath);
+    if (extname === '.md') {
+      const data = fs.readFileSync(filePath, 'utf-8');
+      const newData = data.replace(
+        /(!\[[^\]]*]\((.*?)\.(png|jpg|jpeg)\))/g,
+        (match, p1, p2, p3) => {
+          // const newFileName = path.basename(p2, '.' + p3) + '.webp';
+          return p1.replace(p2 + '.' + p3, p2 + '.' + 'webp');
+        }
+      );
+      fs.writeFileSync(filePath, newData);
+      console.log(`update ${filePath}`);
+    }
+  });
+}
+
 async function convertImages(dir) {
   const subDirs = fs
     .readdirSync(dir)
@@ -28,6 +50,10 @@ async function convertImages(dir) {
   await deleteFilesInDirectory(dir);
 
   for (const subDir of subDirs) {
+    if (subDir === 'favicons') {
+      continue;
+    }
+
     const subDirPath = path.join(dir, subDir);
     await convertImages(subDirPath);
   }
@@ -35,4 +61,5 @@ async function convertImages(dir) {
 
 (async () => {
   await convertImages('assets/img');
+  await updateMarkdownFile('_posts');
 })();

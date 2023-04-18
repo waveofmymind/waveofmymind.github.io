@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+echo "Image optimization..."
+node tools/imagemin.js
+
+echo "Publishing..."
+git commit -am "post: publishing"
+
+echo "Pushing..."
+git push origin master
+
+echo "Done!"
