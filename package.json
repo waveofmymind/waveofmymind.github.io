@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "imagemin": "^8.0.1",
-    "imagemin-webp": "^8.0.0",
-    "sharp": "^0.32.0"
+    "imagemin-webp": "^8.0.0"
   }
 }
