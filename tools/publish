@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Image optimization..."
+echo "Image optimization️...🖼️"
 node tools/imagemin.js
 
-echo "Publishing..."
 git commit -am "post: publishing"
 
-echo "Pushing..."
+echo "Pushing...📦"
 git push origin master
 
-echo "Done!"
+echo "Done! 🎉"
