@@ -3,7 +3,8 @@
 echo "Image optimization️...🖼️"
 node tools/imagemin.js
 
-git commit -am "post: publishing"
+git add .
+git commit -m "post: publishing"
 
 echo "Pushing...📦"
 git push origin master
