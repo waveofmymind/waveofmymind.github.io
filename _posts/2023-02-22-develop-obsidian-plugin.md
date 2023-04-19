@@ -213,7 +213,7 @@ Obsidian 만의 특별한 문법들은 정규표현식을 사용해서 처리했
 
 '이 정도는 3일이면 뚝딱이지 않을까~?' 싶었지만 해외여행을 하며 플러그인 구현까지 하려하니 결국 release PR 생성까지 약 일주일이 소요되었습니다 😂
 
-![image](/assets/img/2023-02-22-develop-obsidian-plugin/coding-in-plane.jpeg)
+![image](/assets/img/2023-02-22-develop-obsidian-plugin/coding-in-plane.webp)
 _비행기를 타고 가면서 JUnit 을 개발한 켄트 백과 에릭 감마도 이렇게 코딩했을까..._
 
 Java 나 Kotlin 만 사용하다가 TypeScript 를 사용하려니 익숙하지 않고, 지금 쓰고 있는 코드가 Best practice 가 맞는지 확신이 들지 않아서 정말 어려웠습니다. 하지만 덕분에 `anync-await` 같은 JS 진영의 문법도 자세히 공부하게 되었으니 또 다른 기술 스택이 하나 생긴 것 같아 뿌듯하네요. 이렇게 글감도 하나 생기고 말입니다.
