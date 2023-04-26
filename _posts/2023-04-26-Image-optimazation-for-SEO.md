@@ -152,6 +152,9 @@ termianl 에서 sh 을 직접 실행하는건 왠지 우아하지 못하다고 �
 npm run publish
 ```
 
+![image](/assets/img/2023-04-26-Image-optimazation-for-SEO/Pasted%20image%2020230426164025.webp)
+_꽤 잘 된다._
+
 우선은 이렇게 마무리했다.
 
 ## Conclusion
