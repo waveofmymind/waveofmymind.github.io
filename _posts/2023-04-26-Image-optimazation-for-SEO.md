@@ -104,7 +104,6 @@ async function updateMarkdownFile(dir) {
       const newData = data.replace(
         /(!\^\*]\((.*?)\.(png|jpg|jpeg)\))/g,
         (match, p1, p2, p3) => {
-          // const newFileName = path.basename(p2, '.' + p3) + '.webp';
           return p1.replace(p2 + '.' + p3, p2 + '.' + 'webp');
         }
       );
