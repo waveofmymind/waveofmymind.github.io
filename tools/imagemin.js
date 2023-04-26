@@ -30,7 +30,7 @@ async function updateMarkdownFile(dir) {
           if (match) {
             console.log(`update ${filePath}`);
           }
-          return p1.replace(p2 + '.' + p3, p2 + '.' + 'webp');
+          return p1.replace(`${p2}.${p3}`, `${p2}.webp`);
         }
       );
       fs.writeFileSync(filePath, newData);
