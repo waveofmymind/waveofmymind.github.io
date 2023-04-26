@@ -45,7 +45,7 @@ async function convertImages(dir) {
 
   await imagemin([`${dir}/*.{png,jpg,jpeg}`], {
     destination: dir,
-    plugins: [imageminWebp({ quality: 75 })]
+    plugins: [imageminWebp({ quality: 100 })]
   });
   await deleteFilesInDirectory(dir);
 

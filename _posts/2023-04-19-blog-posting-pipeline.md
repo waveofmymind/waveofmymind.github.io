@@ -87,8 +87,7 @@ flowchart TB
 
 대략적으로 문법 및 문맥을 다시 한 번 검수해주고, `npm run publish` 를 실행하면 블로그 글 발행 과정이 마무리됩니다.
 
-<!-- > 저는 첨부파일 포맷을 SEO 를 위해 `WebP` 포맷을 사용합니다. `npm run publish` 는 첨부파일들의 이미지 포맷을 자동으로 `WebP` 로 변환해주고 마크다운 링크를 수정해주는 스크립트입니다. 자세한 내용은 [여기]()서 확인하실 수 있습니다. -->
-> publish 에 관해서는 별도의 글을 작성할 예정입니다.
+> publish 에 관해서는 [이 글](https://songkg7.github.io/posts/Image-optimazation-for-SEO/)에서 확인하실 수 있습니다.
 {: .prompt-info}
 
 ## 퇴고
