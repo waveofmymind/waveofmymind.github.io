@@ -5,8 +5,4 @@ permalink: /robots.txt
 
 User-agent: *
 
-Disallow: /
-Allow: /posts/
-Allow: /tags/
-
 Sitemap: {{ '/sitemap.xml' | absolute_url }}
