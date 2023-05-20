@@ -24,10 +24,10 @@ Heap 영역은 new 연산자 등으로 생성된 객체와 배열 등을 저장�
 
 ```java
 public class Main {
-	public static void main(String[] args) {
-		Person person = new Person("a", "곧 참조되지 않음");
-		person = new Person("b", "참조가 유지됨.")
-	}
+ public static void main(String[] args) {
+  Person person = new Person("a", "곧 참조되지 않음");
+  person = new Person("b", "참조가 유지됨.")
+ }
 }
 ```
 
@@ -50,7 +50,7 @@ Java 에서는 개발자가 프로그램 코드로 메모리를 명시적으로 
 - 대부분의 객체는 금방 접근 불가능 상태(unreachable)가 된다.
 - 오래된 객체에서 젊은 객체로의 참조는 아주 적게 존재한다.
 
-#### 대부분의 객체는 금방 접근 불가능 상태가 된다.
+### 대부분의 객체는 금방 접근 불가능 상태가 된다
 
 ```java
 for (int i = 0; i < 10000; i++) {
@@ -61,7 +61,7 @@ for (int i = 0; i < 10000; i++) {
 
 10,000건의 `NewObject` 는 루프 안에서 사용되고 밖에서는 사용할 일이 없다. 그러므로 이 객체가 메모리를 계속 점유하고 있으면 다른 코드를 실행하기 위한 자원은 계속 줄어들 것이다.
 
-#### 오래된 객체에서 젊은 객체로의 참조는 아주 적게 존재한다.
+### 오래된 객체에서 젊은 객체로의 참조는 아주 적게 존재한다
 
 이해를 돕기 위해 다음 코드를 보자.
 
@@ -98,7 +98,7 @@ Old 영역은 기본적으로 데이터가 가득차면 GC 를 실행한다. GC 
 
 Serial GC 를 이해하기 위해서는 먼저 Mark sweep compact 라는 알고리즘에 대해 이해하고 넘어가야 한다. 이 알고리즘의 첫 단계는 Old 영역에 살아있는 객체를 식별(Mark)하는 것이다. 그 다음에는 힙(Heap)의 앞 부분부터 확인하여 살아있는 것만 남긴다(Sweep). 마지막 단계에서는 각 객체들이 연속되게 쌓이도록 힙의 가장 앞 부분부터 채워서 객체가 존재하는 부분과 객체가 없는 부분으로 나눈다(Compaction).
 
->  Serial GC 는 적은 메모리와 CPU 코어 개수가 적을 때 적합한 방식이다. Serial GC 를 사용하면 애플리케이션의 성능이 많이 떨어진다.
+> Serial GC 는 적은 메모리와 CPU 코어 개수가 적을 때 적합한 방식이다. Serial GC 를 사용하면 애플리케이션의 성능이 많이 떨어진다.
 {: .prompt-warning}
 
 ### Parallel GC
@@ -136,14 +136,14 @@ G1GC 의 경우 이전까지의 지식을 모두 버려야 한다. 완전히 새
 Q. G1GC가 이후 버전에서는 디폴트, 앞선 CMS와 비교해서 어떤 장/단점이 있을까?
 
 - 장점
-    - g1gc는 scan 하는 도중 해당리전에 대한 compacting도 수행한다.
-    - 별도의 STW 없이도 여유 메모리 공간을 압축하는 기능을 제공한다.
-        - Compacting으로 STW 발생 시간 최소화
-    - String Deduplication Optimize
-    - 사이즈, 카운트 등 튜닝 가능성 존재
+  - g1gc는 scan 하는 도중 해당리전에 대한 compacting도 수행한다.
+  - 별도의 STW 없이도 여유 메모리 공간을 압축하는 기능을 제공한다.
+    - Compacting으로 STW 발생 시간 최소화
+  - String Deduplication Optimize
+  - 사이즈, 카운트 등 튜닝 가능성 존재
 - 단점
-    - Full GC 수행 시 Single Thread로 동작한다.
-    - 작은 heap 공간을 가지는 애플리케이션에서는 빈번한 Full GC 발생 가능
+  - Full GC 수행 시 Single Thread로 동작한다.
+  - 작은 heap 공간을 가지는 애플리케이션에서는 빈번한 Full GC 발생 가능
 
 ### Shenandoah GC
 
