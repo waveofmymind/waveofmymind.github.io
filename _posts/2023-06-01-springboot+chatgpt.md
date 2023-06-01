@@ -245,7 +245,7 @@ ImprovePointResponse는 개선할만한 점인 improvementPoint와 조언인 adv
 
 위에서 생성한 ImprovePointResponse는 아래와 같이 뷰에서 나타낼 수 있습니다.
 
-![이력서 개선 사항](result.webp)
+![이력서 개선 사항](/assets/img/2023-06-01-springboot+chatgpt/result.webp)
 
 만약, CHAT GPT에게 받을 메시지를 더 정교하게 만들고 싶으면, 위에서 ChatMessage 객체를 더 추가해서 답변을 요청하면 될 것 같습니다.
 
