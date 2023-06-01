@@ -8,7 +8,7 @@ categories:
 
 프로젝트 진행중 챗 GPT를 사용해서 이력서 내용 중 개선할만한 점이 있는지 검토를 받기 위해 OPEN AI의 외부 API를 사용했던 점을 공유하려 합니다.
 
-## 준비 사항
+## **준비 사항**
 
 챗 GPT를 사용하기 위해 외부 라이브러리중, 가장 별이 많은 아래 라이브러리를 사용했습니다.
 
@@ -25,7 +25,7 @@ implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
 
 [https://platform.openai.com/](https://platform.openai.com/)
 
-### Completion vs ChatCompletion
+## **Completion vs ChatCompletion**
 
 챗 GPT API는 크게 두가지 기능을 제공하고 있습니다.
 
@@ -39,7 +39,7 @@ implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
 
 그리고 GPT-4도 지원한다고 하니, 라이브러리는 최신 버전으로 받아줍니다.
 
-### OpenAiService
+## **OpenAiService**
 
 저희가 사용하려는 라이브러리의 핵심 비즈니스 클래스입니다.
 
@@ -120,7 +120,7 @@ public class OpenAiService {
 
 Retrofit을 사용해서 API 통신을 하며, 타임아웃은 디폴트가 10초이기 때문에 타임아웃을 정의해주는게 좋을 것 같습니다.
 
-## 과정
+## **과정**
 
 챗 컴플리션의 경우 OPEN AI API 사이트에서 기능을 번역하면, 채팅 기능처럼 이전의 내용을 기억하고 답변을 제공한다고 했습니다.
 
@@ -241,7 +241,7 @@ return objectMapper.readValue(futureResult, ImprovePointResponse.class);
 
 ImprovePointResponse는 개선할만한 점인 improvementPoint와 조언인 advice를 리스트로 가지는 객체입니다.
 
-## 결과
+## **결과**
 
 위에서 생성한 ImprovePointResponse는 아래와 같이 뷰에서 나타낼 수 있습니다.
 
@@ -253,9 +253,8 @@ ImprovePointResponse는 개선할만한 점인 improvementPoint와 조언인 adv
 
 저는 질문과 대답만을 받기 위한 서비스를 구현하고 있기 때문에, 그에 대한 내용은 저희가 사용한 라이브러리 사이트에서 도움을 받을 수 있을 것 같습니다.
 
-## TO-BE
+## **TO-DO**
 
-TO-DO
 생성 AI를 적용하는 서비스들도 늘어나고 있기 때문에 백엔드 개발자로써 한번쯤은 사용해보는게 좋을 것이라고 생각해서 시작한 프로젝트입니다.
 
 그러나 특정 외부 라이브러리를 사용하기 때문에 OPEN AI의 공식 문서를 살펴보는 것이 큰 도움이 되었습니다.
@@ -267,7 +266,7 @@ TO-DO
 
 서비스를 제공할 때 미리 소요 시간을 안내하면서, 제출하고 나서 로딩 화면을 추가로 보여주는 것이 좋을 것 같습니다.
 
-## 레퍼런스
+## **레퍼런스**
 
 [https://github.com/TheoKanning/openai-java](https://github.com/TheoKanning/openai-java)
 
