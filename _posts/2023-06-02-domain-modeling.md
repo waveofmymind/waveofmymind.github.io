@@ -6,7 +6,9 @@ tags: [domain,modeling]
 categories: [Trouble Shooting]
 ---
 
-제가 첫 프로젝트를 진행하면서 고민했던 도메인 설계에 대한 내용을 공유하고자합니다.
+제가 첫 프로젝트인 퍼디를 개발하면서 고민했던 도메인 설계에 대한 내용을 공유하고자합니다.
+퍼디는 전문가 기반 질의응답 서비스입니다.
+프로젝트 설명은 [여기](https://github.com/waveofmymind/Puddy_BackEnd)에서 확인할 수 있습니다.
 
 ## **AS-IS**
 

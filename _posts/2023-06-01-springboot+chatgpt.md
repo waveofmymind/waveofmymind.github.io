@@ -1,9 +1,9 @@
 ---
 title: "스프링 부트에서 챗 GPT를 사용해보자"
 date: 2023-06-01 10:12:00 +0900
-aliases: [Spring]
+aliases: 
 tags: [openai,chatgpt,Spring,스프링]
-categories: 
+categories: [Spring]
 ---
 
 프로젝트 진행중 챗 GPT를 사용해서 이력서 내용 중 개선할만한 점이 있는지 검토를 받기 위해 OPEN AI의 외부 API를 사용했던 점을 공유하려 합니다.
@@ -17,8 +17,8 @@ categories:
 저는 Gradle로 프로젝트를 진행하고 있기 때문에, 아래 의존성을 추가해줍니다.
 
 ```java
-implementation 'com.theokanning.openai-gpt3-java:api:0.12.0'
-implementation 'com.theokanning.openai-gpt3-java:service:0.12.0'
+implementation "com.theokanning.openai-gpt3-java:api:0.12.0"
+implementation "com.theokanning.openai-gpt3-java:service:0.12.0"
 ```
 
 그리고 챗 GPT API를 사용하기 위해서 OPEN AI에서 제공하는 토큰이 필요합니다.
