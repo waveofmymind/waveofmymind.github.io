@@ -1,9 +1,9 @@
 ---
-title: "스프링 부트에서 챗 GPT를 사용해보자"
-date: 2023-06-01 10:12:00 +0900
-aliases: [Spring]
-tags: [openai,chatgpt,Spring,스프링]
-categories: 
+title: "도메인 설계에 대한 고민"
+date: 2023-06-02 10:12:00 +0900
+aliases: 
+tags: [domain,modeling]
+categories: [Trouble Shooting]
 ---
 
 제가 첫 프로젝트를 진행하면서 고민했던 도메인 설계에 대한 내용을 공유하고자합니다.
