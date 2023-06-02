@@ -198,9 +198,8 @@ public ExpectedImproveResponse createdImprovementPointsAndAdvice(String job, Str
 suspend fun createdExpectedQuestionsAndAnswer(job: String, career: String, resumeData: List<ResumeRequest>): ExpectedImproveResponse {
     val result = ConcurrentHashMap<String, MutableList<ImprovementResponse>>()
 
-    // create coroutine scope
     coroutineScope {
-        // map each ResumeRequest to a coroutine Job
+        
         val jobs = resumeData.map { data ->
             launch {
                 try {
@@ -217,7 +216,6 @@ suspend fun createdExpectedQuestionsAndAnswer(job: String, career: String, resum
             }
         }
 
-        // wait for all jobs to complete
         jobs.joinAll()
     }
 
@@ -230,6 +228,11 @@ Thread-safety를 보장하기 위해 ConcurrentHashMap을 사용했고,
 각 코루틴에서 발생하는 예외를 try/catch 블록으로 처리하였습니다.
 
 또한 coroutineScope 밖에서 joinAll을 호출하여, 코루틴이 취소될 경우 모든 하위 코루틴이 취소되도록 하였습니다.
+
+## **레퍼런스**
+
+[https://velog.io/@suyeon-jin/JAVA-CompletableFuture#4-completablefuture](https://velog.io/@suyeon-jin/JAVA-CompletableFuture#4-completablefuture)
+
 
 
 
