@@ -1,6 +1,6 @@
 ---
 title: "[LeetCode] valid-palindrome"
-date: 2023-06-01 10:12:00 +0900
+date: 2023-06-04 10:12:00 +0900
 aliases: 
 tags: [알고리즘,리트코드,LeetCode,NeetCode 150,Algorithm,알고리즘]
 categories: [Algorithm]
