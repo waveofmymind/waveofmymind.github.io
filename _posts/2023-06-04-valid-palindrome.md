@@ -16,6 +16,8 @@ categories: [Algorithm]
 
 그리고 양 끝이 다를 경우 False, 모두 같을 경우 True를 반환하는 문제입니다.
 
+그리고 입력 문자열에는 영어와 숫자가 포함됩니다.
+
 ## 코드
 
 ```python
