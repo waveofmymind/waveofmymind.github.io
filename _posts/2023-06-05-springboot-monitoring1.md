@@ -68,8 +68,8 @@ services:
   	  - '9090:9090'
   	command:
   	  - '--web.enable-lifecycle'
-  	  - '--config.file=/etc/prometheus/prometheus.yml
-  	restart: always
+  	  - '--config.file=/etc/prometheus/prometheus.yml'
+    restart: always
   	networks:
   	  - monitor-network
 ```
