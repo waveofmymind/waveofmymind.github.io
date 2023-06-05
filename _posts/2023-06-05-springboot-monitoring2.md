@@ -24,7 +24,7 @@ services:
   	  - '9090:9090'
   	command:
   	  - '--web.enable-lifecycle'
-  	  - '--config.file=/etc/prometheus/prometheus.yml
+  	  - '--config.file=/etc/prometheus/prometheus.yml'
   	restart: always
   	networks:
   	  - monitor-network
@@ -78,6 +78,50 @@ root_url = %(protocol)s://%(domain)s:%(http_port)s/
 
 이제 그라파나에 관련된 설정도 모두 끝났습니다.
 
+## docker-compose.yml
+
+이제 모든 서비스를 실행할 docker-compose.yml 파일은 아래와 같습니다.
+
+```yaml
+version: "3.7"
+
+services:
+
+  prometheus:
+      image: prom/prometheus
+      ports:
+        - "9090:9090"
+      volumes:
+        - ./prometheus/config/:/etc/prometheus/
+        - ./prometheus/prometheus-volume:/prometheus
+      command:
+        - '--web.enable-lifecycle'
+        - '--config.file=/etc/prometheus/prometheus.yml'
+      restart: always
+      networks:
+        - goodjob-network
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/grafana-volume:/var/lib/grafana
+      - ./grafana/config/grafana-init.ini:/etc/grafana/grafana.ini
+    restart: always
+    user: "$UID:$GID"
+    networks:
+      - goodjob-network
+        
+networks:
+  goodjob-network:
+    driver: bridge
+```
+
+
+
 ## 도커라이징
 
 이제 docker-compose up -d 로 도커 컴포즈 파일로 컨테이너를 실행시켜봅시다.
@@ -126,6 +170,18 @@ protocol을 https로 사용할 경우에는 SSL 보안 문서에 대한 작업�
 그래서 저는 어차피 프록시 매니저에 의해 그라파나 url을 http://인스턴스IP:3000/로 설정하더라도 https://grafana.waveofmymind.shop/으로 변경해서 접속할 수 있기 때문에
 
 protocol을 http로 변경하고, domain에 인스턴스 IP로 변경했습니다.
+
+### 그라파나 권한 이슈
+
+그라파나를 도커에서 실행시켰지만, 포트가 정상적으로 연결되지 않았습니다.
+
+그래서 저는 docker logs -f 그라파나ID로 로그를 찍어보았고,
+
+grafana 설정 파일을 찾지 못한다는 이슈가 있었습니다.
+그래서 저는 user: "$UID:$GID" 를 그라파나 실행 yml에 추가했습니다.
+
+현재 사용자와 그룹을 참조하는 환경변수를 추가함으로써, 프로세스가 사용자 권한을 가질 수 있도록 하는 것입니다.
+
 
 ### TO-BE
 
