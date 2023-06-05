@@ -1,5 +1,5 @@
 ---
-title: "도커 컴포즈를 이용해서 프로메테우스+그라파나 도커라이징하기 (1/2)"
+title: "도커 컴포즈로 그라파나+프로메테우스 실행시키기(1/2)"
 date: 2023-06-05 21:12:00 +0900
 aliases: 
 tags: [docker,docker compose,prometheus,프로메테우스,그라파나,grafana,monitoring]
