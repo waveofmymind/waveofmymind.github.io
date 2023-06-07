@@ -1,6 +1,6 @@
 ---
 title: "NCP 사용 회고"
-date: 2023-06-07 18:12:00 +0900
+date: 2023-06-06 23:12:00 +0900
 aliases: 
 tags: [네이버 클라우드 플랫폼,NCP]
 categories: [회고]
