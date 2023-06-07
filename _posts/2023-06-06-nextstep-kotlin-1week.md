@@ -3,7 +3,7 @@ title: "TDD, 클린 코드 with Kotlin - 1주차"
 date: 2023-06-06 21:13:00 +0900
 aliases: 
 tags: [nextstep,kotlin]
-categories: [Kotlin]
+categories: [Retrospect]
 ---
 
 ![Kotlin](/assets/img/2023-06-06-nextstep-kotlin-1week/img1.webp)
