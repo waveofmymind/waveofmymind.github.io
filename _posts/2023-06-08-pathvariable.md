@@ -2,8 +2,8 @@
 title: "url 변수 동적으로 받도록 개선하기"
 date: 2023-06-08 10:14:00 +0900
 aliases: 
-tags: [mvc framework,mvc]
-categories: [Java]
+tags: [mvc framework,mvc,java,spring]
+categories: [Trouble Shooting]
 ---
 
 MVC 프레임워크는 스프링과 기능을 하는 프레임 워크를 구현해보는 것입니다.
@@ -11,7 +11,7 @@ MVC 프레임워크는 스프링과 기능을 하는 프레임 워크를 구현�
 그 중,스프링의 @PathVariable은 /questions/{questionId}와 같은 경로로 라우팅 되었을 때
 {questionId}에 대한 값을 바인딩 하는 역할을 합니다.
 
-처음부터 어노테이션 기반으로 @PathVariable 어노테이션 자체를 구현하는 방법도 좋았지만,
+처음부터 어노테이션 기반으로 PathVariable 어노테이션 자체를 구현하는 방법도 좋았지만,
 
 이미 구현된 코드를 요구사항에 맞춰 개선하는 것이 이번 프로젝트의 목적이라고 생각했습니다.
 
@@ -166,8 +166,5 @@ url 변수가 여러개가 되어도 맵을 통해 꺼내오면 되기 때문에
 저는 article에 대해서만 다루고 있기 때문에 "/usr/article/{id}"와 같이 간략하게 사용했지만,
 
 실제로 다른 도메인이 추가되고 기능이 확장된다면 구분을 위해 "/usr/article/{articleId}"와 같이 사용하는 방법이 더 좋을 것 같습니다.
-
- 
- 
 
 
