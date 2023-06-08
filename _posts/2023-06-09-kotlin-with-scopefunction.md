@@ -1,8 +1,8 @@
 ---
-title: "코틀린스럽게 작성하기 w.확장 함수"
+title: "코틀린스럽게 작성하기 with 컬렉션 함수"
 date: 2023-06-09 00:12:27 +0900
 aliases: 
-tags: [Kotlin,Clean Code,Scope Function]
+tags: [Kotlin,Clean Code,Collection Function]
 categories: [Trouble Shooting]
 ---
 
@@ -29,7 +29,7 @@ fun calculate(formula: Formula): Double {
         }
 ```
 
-자바 코드에 익숙하다보니 코틀린에서도 확장 함수보단 for문을 이용한 반복문으로 구현을 하게 되었던 것입니다.
+자바 코드에 익숙하다보니 코틀린에서 지원하는 함수보단 for문을 이용한 반복문으로 구현을 하게 되었던 것입니다.
 
 ![피드백1](/assets/img/2023-06-09-kotlin-with-scopefunction/feedback1.webp)
 
@@ -37,10 +37,9 @@ fun calculate(formula: Formula): Double {
 
 ![피드백3](/assets/img/2023-06-09-kotlin-with-scopefunction/feedback3.webp)
 
-위와 같이 코틀린에 대한 확장함수를 다양하게 사용하면 코틀린스럽게 구현이 가능하다는 피드백을 받고
-부랴부랴 찾아보게 되었습니다.
+위와 같이 코틀린에 대한 컬렉션 함수를 다양하게 사용하면 코틀린스럽게 구현이 가능하다는 피드백을 받고 적용하기 위해, 개념부터 찾아보게 되었습니다.
 
-## Scope function 다루기
+## Colletion function
 
 ### drop, windowed
 
