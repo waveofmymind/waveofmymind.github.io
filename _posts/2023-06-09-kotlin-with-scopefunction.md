@@ -6,6 +6,8 @@ tags: [Kotlin,Clean Code,Collection Function]
 categories: [Trouble Shooting]
 ---
 
+![코틀린](/assets/img/kotlin.webp)
+
 NEXTSTEP 에서 진행하는 **TDD, 클린코드 with Kotlin 6기**에 참여하면서 미션에 대한 피드백 바탕으로 코틀린스럽게 작성해보는 경험을 공유하고자합니다.
 
 이번 미션은 첫 주차이기때문에 요구사항 자체는 간단했습니다 (아마도?)
@@ -16,7 +18,7 @@ NEXTSTEP 에서 진행하는 **TDD, 클린코드 with Kotlin 6기**에 참여하
 
 저는 계산을 하는 함수 로직을 다음과 같이 작성했습니다.
 
-```java
+```kotlin
 fun calculate(formula: Formula): Double {
 
 	val expression = formula.expression
@@ -56,7 +58,7 @@ drop()은 앞에서부터 인자로 주어진 수만큼 제거한 String을 반�
 substring()과 같은 역할이라고 할 수 있습니다.
 
 리스트에서 사용하면 아래와 같이 사용이 가능합니다.
-```java
+```kotlin
 val numbers = listOf("one", "two", "three", "four", "five", "six")
 
 println(numbers.drop(1))
@@ -71,7 +73,7 @@ windowed는 인자로 size, step, partialWindows를 받을 수 있는데,
 
 partialWindows는 윈도우를 쪼갤 때 마지막 윈도우가 size보다 작을 경우 해당 윈도우를 그대로 유지할지 여부를 정하는 Boolean 값이며, 디폴트는 false입니다.
 
-```java
+```kotlin
 val range = 0..10
 
 val temp = range.windowed(3, 3)
@@ -84,18 +86,18 @@ println(temp2) // [[0,1,2],[3,4,5],[6,7,8],[9,10]]
 
 first()는 말 그대로 첫번째 인자를 가져올 수 있습니다.
 
-```java
+```kotlin
 (0..10).toList().first() // 0
 ```
 take()는 인자로 받은 Int 값만큼 앞에서 취해서 리스트를 새로 생성합니다.
 
-```java
+```kotlin
 (0..10).toList().take(3) // [0,1,2]
 ```
 
 ### fold
 
-```java
+```kotlin
 inline fun <T, R> Iterable<T>.fold(
     initial: R,
     operation: (R, T) -> R
@@ -104,7 +106,7 @@ inline fun <T, R> Iterable<T>.fold(
 
 fold는 누적합을 구하는 함수로 인자로 주어진 값을 초기값으로 하고 더해나갑니다.
 
-```java
+```kotlin
 val numbers = (1..10).toList()
 
 val sum = numbers.fold(100) {total, num -> 
@@ -119,7 +121,7 @@ print(sum) // 155
 
 즉 위에서 피드백을 받아 리팩토링한 메서드는 다음과 같습니다.
 
-```java
+```kotlin
 fun calculate(input: String?): Double {
             val formula = Formula(input)
             val expression = formula.expression
