@@ -31,20 +31,21 @@ fun calculate(formula: Formula): Double {
         }
 ```
 
-자바 코드에 익숙하다보니 코틀린에서 지원하는 함수보단 for문을 이용한 반복문으로 구현을 하게 되었고,
+자바 코드에 익숙하다보니 코틀린에서 지원하는 함수는 생각하지 못하고 for문을 이용한 반복문으로 구현을 했습니다.
 
 ![피드백1](/assets/img/2023-06-09-kotlin-with-scopefunction/feedback1.webp)
 
+
 ![피드백2](/assets/img/2023-06-09-kotlin-with-scopefunction/feedback2.webp)
+
 
 ![피드백3](/assets/img/2023-06-09-kotlin-with-scopefunction/feedback3.webp)
 
-당연히 수많은 피드백을 받게 되었습니다(?)
+그 결과, 당연히 수많은 피드백을 받게 되었습니다(?)
 
-그래서 저는 코틀린이 지원하는 컬렉션 함수를 다양하게 사용하면 코틀린스럽게 구현이 가능하다는 피드백을 받고 적용하기 위해, 개념부터 찾아보게 되었습니다.
+그래서 저는 코틀린이 지원하는 다양한 컬렉션 함수를 사용하면 코틀린스럽게 구현이 가능하다는 피드백을 받고 적용하기 위해, 개념부터 찾아보게 되었습니다.
 
-더 많은 컬렉션 함수가 있지만, 제가 이번에 리팩토링할 때 사용했던 함수들만 중점적으로 설명할 예정이니,
-더 많은 컬렉션 함수는 [여기](https://kotlinlang.org/docs/collection-operations.html#write-operations)를 참고해주세요.
+더 많은 컬렉션 함수가 있지만, 제가 이번에 리팩토링할 때 사용했던 함수들만 중점적으로 설명할 예정이니 더 많은 컬렉션 함수는 [여기](https://kotlinlang.org/docs/collection-operations.html#write-operations)를 참고해주세요.
 
 ## Colletion function
 
@@ -92,7 +93,7 @@ take()는 인자로 받은 Int 값만큼 앞에서 취해서 리스트를 새로
 (0..10).toList().take(3) // [0,1,2]
 ```
 
-## fold
+### fold
 
 ```java
 inline fun <T, R> Iterable<T>.fold(
