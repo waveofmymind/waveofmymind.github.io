@@ -1,5 +1,5 @@
 ---
-title: "Effective Kotlin Item 2. 변수의 스코프를 최소화하라"
+title: "Effective Kotlin - Item 2. 변수의 스코프를 최소화하라"
 date: 2023-06-08 15:15:00 +0900
 aliases: 
 tags: [Kotlin]

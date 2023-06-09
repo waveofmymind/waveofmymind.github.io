@@ -1,5 +1,5 @@
 ---
-title: "Effective Kotlin Item 1. 가변성을 제한하라"
+title: "Effective Kotlin - Item 1. 가변성을 제한하라"
 date: 2023-06-08 15:09:00 +0900
 aliases: 
 tags: [Kotlin]
