@@ -13,7 +13,7 @@ failover에 대한 처리를 통해 HA를 보장하려면 Sentinal이나 Cluster
 
 ## Sentinel
 
-![Redis Sentinel](/assets/img/redis-sentinel.webp)
+![Redis Sentinel](/assets/img/2023-06-09-redis-service/redis-sentinel.webp)
 
 ### 기능
 
