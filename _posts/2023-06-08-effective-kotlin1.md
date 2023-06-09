@@ -6,6 +6,8 @@ tags: [Kotlin]
 categories: [Kotlin]
 ---
 
+![kotlin](/assets/img/kotlin.webp)
+
 ## 코틀린에서 가변성 제한하기
 ---
 코틀린에서 가변성을 제한하기 위해 굉장히 많은 방법을 활용할 수 있지만 많이 사용되고 중요한 방법은 아래와 같다.
