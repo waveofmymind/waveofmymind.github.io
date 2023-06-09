@@ -23,7 +23,7 @@ categories: [Kotlin]
 
 아래와 같은 컬렉션 다운 캐스팅 금지
 
-```java
+```kotlin
 val list = listOf(1,2,3)
 
 if (list is MutableList) {
@@ -35,7 +35,7 @@ JVM 기준 Arrays.ArrayList에는 add가 구현되어 있지 않아 UnsupportedO
 
 읽기 전용에서 가변으로 변경하려면 아래와 같은 toMutableList를 활용한다.
 
-```java
+```kotlin
 val list = listOf(1,2,3)
 val mutable = list.toMutableList()
 ```
@@ -60,7 +60,7 @@ Int와 같이 내부적으로 plus, minus와 같이 불변한 Int를 리턴하�
 변경 가능한 리스트를 만들 때 아래와 같은 두가지 선택지가 존재한다.
 
 - val + MutableList
-```java
+```kotlin
 val list1: MutableList<Int> = mutableListOf()
 var + ImmutableList
 var list2: List<Int> = listOf()
@@ -68,7 +68,7 @@ var list2: List<Int> = listOf()
 
 두 가지 모두 변경은 가능하지만 내부적인 동작이 다르다.
 
-```java
+```kotlin
 list1 += 1 // list1.plusAssign(1)
 list2 += 1 // list2.plus(1)
 ```
@@ -76,7 +76,7 @@ list2 += 1 // list2.plus(1)
 첫번째 코드는 멀티스레드 처리 시 내부의 동기화 여부를 알 수 없어 위험하며 두번째 코드가 멀티스레드 안정성이 더 좋다. (하지만 잘못 만들면 일부 요소의 손실 가능)
 
 mutable 프로퍼티를 사용하면 사용자 정의 setter(또는 이를 사용하는 델리게이트)를 활용해 변경을 추적할 수 있음
-```java
+```kotlin
 var names by Delegates.observable(listOf<String>()) { _, old, new -> 
     println("Names chanaged from $old to $new")
 }
@@ -85,7 +85,7 @@ MutableCollection 대신 mutable 프로퍼티인 var를 활용하는게 객체 �
 
 최악의 방법은 프로퍼티와 컬렉션 모두 Mutable로 만드는 것
 
-```java
+```kotlin
 var list = mutableListOf<Int>()
 list += 1 // 모호성이 발생해 해당 연산자 사용 불가능
 ```
@@ -93,7 +93,7 @@ list += 1 // 모호성이 발생해 해당 연산자 사용 불가능
 Mutable 객체가 외부에 노출되는 경우 수정이 발생할 수 있으니 위험하다.
 
 리턴되는 mutable 객체 복제해 반환하는 방어적 복제(defensive copying) 사용
-```java
+```kotlin
 class UserHolder {
    private val user: MutableUser()
 ​

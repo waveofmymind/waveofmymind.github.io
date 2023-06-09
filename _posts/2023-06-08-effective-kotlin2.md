@@ -12,7 +12,7 @@ categories: [Kotlin]
 
 변수는 읽기 전용 여부와 상관 없이 if, when, try-catch, elvis operator(?:) 등을 활용해 변수를 정의할 때 초기화되는 것이 좋다.
 
-```java
+```kotlin
 fun updateWeather(degrees: Int) {
 	val (description, color) = when {
 		degrees < 5 -> "cold" to Color.BLUE
@@ -25,7 +25,7 @@ fun updateWeather(degrees: Int) {
 ## 캡처링
 ---
 에라토스테네스의 체 구현시 아래와 같은 코드를 작성할 수 있다.
-```java
+```kotlin
 val primes: Sequence<Int> = sequence {
 	var numbers = generateSequence(2) { it + 1 }
 
@@ -41,7 +41,7 @@ println(primes.take(10).toList())
 // [2, 3, 5, 7, 11, 13, 17, 19, 23, 29]
 ```
 위 코드를 아래와 같이 최적화하려고 시도하는 경우 문제가 발생한다.
-```java
+```kotlin
 val primes: Sequence<Int> = sequence {
     var numbers = generateSequence(2) { it + 1 }
 
