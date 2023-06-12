@@ -8,7 +8,7 @@ categories: [Trouble Shooting]
 
 제 퍼디 프로젝트 중, N+1 문제가 발생하여 연관관계를 다시 수립하고 N+1 문제를 개선했던 경험을 공유하고자 합니다.
 
-![erd](/assets/img/2023-06-12-jpa-n+1-problem/erd.webp)
+![erd](/assets/img/2023-05-15-jpa-n+1-problem/erd.webp)
 
 글 이해를 돕기 위해 간략하게 설명하면,
 
