@@ -8,9 +8,7 @@ categories: [Kotlin]
 
 ![kotlin](/assets/img/kotlin.webp)
 
-NEXTSTEP에서 진행하는 TDD, 클린 코드 with Kotlin 6기에 참여하면서,
-
-2주차 수업을 듣고 TDD에 대해서 자세히 정리해본 글입니다.
+NEXTSTEP에서 진행하는 **TDD, 클린 코드 with Kotlin 6기**에 참여하면서 2주차 수업을 듣고 TDD에 대해서 자세히 정리해본 글입니다.
 
 ## 이름
 
