@@ -8,7 +8,7 @@ categories: [Kotlin]
 
 ![Kotlin](/assets/img/kotlin.webp)
 
-NEXTSTEP에서 진행하는 **TDD, 클린코드 with Kotlin 6기**에 참여하면서 미션에 대한 피드백 바탕으로 리팩토링을 하던 과정 중, 발생한 문제점을 해결한 내용을 공유하고자합니다.
+NEXTSTEP에서 진행하는 **TDD, 클린 코드 with Kotlin 6기**에 참여하면서 미션에 대한 피드백 바탕으로 리팩토링을 하던 과정 중, 발생한 문제점을 해결한 내용을 공유하고자합니다.
 
 ## AS-IS
 
