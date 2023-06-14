@@ -34,7 +34,7 @@ fun move(randomNumber: Int) {
 
 ## TDD
 
-![tdd](/assets/img/2023-06-13-nextstep-kotlin-2week/tdd.webp)
+![tdd](/assets/img/2023-06-13-what-is-tdd/tdd.webp)
 
 우선 테스트가 가능한 부분을 찾자. 작은 것이라도 좋다.
 
