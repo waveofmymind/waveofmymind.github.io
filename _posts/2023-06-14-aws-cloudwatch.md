@@ -1,9 +1,9 @@
 ---
-title: "로그 수집을 위한 AWS CloudWatch 적용기"
+title: "스프링에서 로그 수집을 위한 AWS CloudWatch 적용기"
 date: 2023-06-14 21:29:00 +0900
 aliases: 
-tags: [AWS,AWS CloudWatch,Log]
-categories: [DevOps]
+tags: [AWS,AWS CloudWatch,Log,Spring Boot,Spring]
+categories: [Spring]
 ---
 
 ![AWS Cloudwatch](/assets/img/2023-06-14-aws-cloudwatch/cloudwatch.webp)
@@ -24,8 +24,26 @@ Github Webhook -> Jenkins -> Docker의 순서대로 CI/CD가 이루어져 NCP의
 
 이는 DevOps를 제 계정으로 구축하다보니 로그를 체크하는 일은 제 일이 되었습니다.
 
-> ~~~이슈가 있는 것 같은데, 로그를 확인해주실 수 있을까요? 
-	-> 네 잠시만요 (도커 접속)이 되었던 것입니다.
+> 이슈가 있는 것 같은데, 로그를 확인해주실 수 있을까요?
+>
+> 저 방금 특정 API를 요청했는데, 500 에러가 발생해요.
+
+등의 메시지가 오면 도커에서 로그를 찍어보거나, 코드를 살펴본 후 로컬 환경에서 재연해보고 문제를 해결해야 했습니다.
+
+이는 요청하는 사람도 불편해지고, 만약 제가 자리에 없으면 로그를 확인하지 못하고 문제가 발생해도 해결하지 못하는 상황이 발생하게 됩니다.
+
+그래서 이는 팀 프로젝트를 진행하는데 있어서 비효율적이라고 생각했습니다.
+
+그래서 저는 logback을 사용하면 로그 파일을 저장하는 것 외에도 AWS CloudWatch를 사용하면 직접 서버에 접속하지 않아도 콘솔에서 로그를 확인해 볼 수 있다는 것을 알게 되었고,
+이를 적용하게 되었습니다.
+
+## 준비 사항
+
+## TO-BE: AWS CloudWatch를 사용한 편리한 로그 확인
+
+## TO-DO
+
+
 
 
 
