@@ -12,7 +12,7 @@ categories: [Spring]
 
 ## AS-IS
 
-![수많은 대시보드..](/assets/img/2023-06-16-effective-monitoring/normal.webp)
+![수많은 대시보드..](/assets/img/2023-06-15-effective-monitoring/normal.webp)
 
 저는 기존 템플릿 사용보다, 애플리케이션 관리에 필수적인 모니터링 대상을 찾아가며 단계적으로 적용해 나갔습니다. 
 모니터링 요소들이 추가되면서 대시보드는 눈에 띄게 개선되고 굉장히 만족스러워졌습니다.
@@ -64,7 +64,7 @@ timer.record(() -> {
 
 접속해보면, 아래와 같이 JSON 형식으로 나옵니다.
 
-![커스텀 메트릭1](/assets/img/2023-06-16-effective-monitoring/timer-first.webp)
+![커스텀 메트릭1](/assets/img/2023-06-15-effective-monitoring/timer-first.webp)
 
 요청 횟수와 총 시간이 측정되었습니다.
 
@@ -167,7 +167,7 @@ public GptGeneratedService {
 
 그리고 메트릭을 얻어오기위해 프로메테우스 경로로 들어가보면,
 
-![프로메테우스](/assets/img/2023-06-16-effective-monitoring/prometheus.webp)
+![프로메테우스](/assets/img/2023-06-15-effective-monitoring/prometheus.webp)
 
 모든 메서드에 대해 지원하고 있음을 확인할 수 있습니다.
 
@@ -190,18 +190,13 @@ public GptGeneratedService {
 
 저는 아래와 같이 구성했습니다.
 
-![비즈니스 로직 모니터링](/assets/img/2023-06-16-effective-monitoring/result.webp)
+![비즈니스 로직 모니터링](/assets/img/2023-06-15-effective-monitoring/result.webp)
 
 생성 AI 서비스인 이력서 검토 조언 생성 및 면접 예상 질문 서비스에 대한 응답 시간을 각각 평균으로 나타내고, 최대 소모 시간, 누적 시간을 나타냈습니다. 
 
 실제로 위와 같이 구성 후, 특정 요청에 대해 타임 아웃 이슈가 있어서 대시보드에 기록된 시간을 AWS CloudWatch 콘솔에 접속하여 로그를 트래킹한 후, 이슈를 빠르게 대처하고 해결할 수 있었습니다.
 
 본 게시글에서는 타이머를 사용해서 시간을 기록하는 것에 대해서 다루었지만, 카운터나 게이지 등을 사용하면 서비스에 맞는 모니터링 환경을 구성할 수 있을 것입니다.
-
-
-
-
-
 
 
 
