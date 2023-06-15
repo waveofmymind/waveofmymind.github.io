@@ -15,7 +15,8 @@ categories: [Spring]
 ![수많은 대시보드..](/assets/img/2023-06-15-effective-monitoring/normal.webp)
 
 저는 기존 템플릿 사용보다, 애플리케이션 관리에 필수적인 모니터링 대상을 찾아가며 단계적으로 적용해 나갔습니다. 
-모니터링 요소들이 추가되면서 대시보드는 눈에 띄게 개선되고 굉장히 만족스러워졌습니다.
+
+모니터링 요소들이 추가되면서 대시보드는 눈에 띄게 개선되었고, 굉장히 만족스러워졌습니다.
 
 그렇지만 동시에, 개발 작업 중 실제로 마주하는 비즈니스 로직의 모니터링은 전혀 없었기 때문에, 이런 것들이 실제 운영에 도움을 줄지 의문이 들었습니다.
 
@@ -202,4 +203,8 @@ public GptGeneratedService {
 
 ## 레퍼런스
 
-![마이크로미터 공식 문서](https://micrometer.io/docs/concepts#_storing_start_state_in_timer_sample)
+- [마이크로미터 공식 문서](https://micrometer.io/docs/concepts#_storing_start_state_in_timer_sample)
+
+- [토리맘의 한글라이즈 프로젝트 - Metrics](https://godekdls.github.io/Spring%20Boot/metrics/#timed-annotation-support)
+
+- [처리/응답시간 메트릭 수집하기](https://blog.leocat.kr/notes/2021/02/01/micrometer-collect-duration-with-timer)
