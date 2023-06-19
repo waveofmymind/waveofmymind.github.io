@@ -1,6 +1,6 @@
 ---
 title: "new 연산자로 String 객체를 생성하면 안되는 이유"
-date: 2023-06-13 21:29:00 +0900
+date: 2023-06-19 09:29:00 +0900
 aliases: 
 tags: [Java,자바,문자열,String]
 categories: [Java]
