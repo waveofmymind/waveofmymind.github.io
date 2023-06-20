@@ -33,21 +33,25 @@ void StringTest2() {
 
 위 테스트의 결과 중 2번은 통과되지 않는다.
 
-"어 당연히 같은 값으로 객체를 생성하기 때문에 힙 영역의 같은 번지수를 가르키고 있는게 아닌가?"
+"어 당연히 같은 값으로 객체를 생성하기 때문에 힙 영역의 같은 번지수를 가르키고 있는게 아닌가?" 
 
- 라는 생각을 했지만, new 연산자로 생성한 String 객체는 내용이 같더라도 개별적인 객체였다.
+라는 생각을 했지만, new 연산자로 생성한 String 객체는 내용이 같더라도 개별적인 객체였다.
 
- 위 원리를 이해하기 위해 String Pool을 알아야한다.
+위 원리를 이해하기 위해 String Pool을 알아야한다.
 
- ## Java String Pool
+## Java String Pool
 
- new 연산자를 사용해서 String 객체를 생성하지 않는 것이 좋다는 이유는 String Pool때문이다.
+new 연산자를 사용해서 String 객체를 생성하지 않는 것이 좋다는 이유는 String Pool때문이다.
 
- 만약 `String value = "안녕";` 과 같이 리터럴로 생성하면 해당 "안녕" 이라는 실제 값은 힙 영역 내의  String Pool에 저장된다.
+만약 `String value = "안녕";` 과 같이 리터럴로 생성하면 해당 "안녕" 이라는 실제 값은 힙 영역 내의  String Pool에 저장된다.
 
- 그러나 new 연산자를 사용해서 String 객체를 생성하면 String Pool에 이미 존재하더라도, 힙 영역 내 별도의 객체를 가리키게 된다.
+그러나 new 연산자를 사용해서 String 객체를 생성하면 String Pool에 이미 존재하더라도, 힙 영역 내 별도의 객체를 가리키게 된다.
 
- 그렇다면 이미 new 연산자로 생성한 String 객체를 String Pool에서 관리하게 할 수는 없을까?
+즉 다음과 같이 생성되는 것이다.
+
+![String Pool](/assets/img/2023-06-19-string-should-make-literal/string-pool.webp)
+
+그렇다면 이미 new 연산자로 생성한 String 객체를 String Pool에서 관리하게 할 수는 없을까?
 
 ## String interning
 
