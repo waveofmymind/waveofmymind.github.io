@@ -9,7 +9,7 @@ categories: [DevOps]
 ![Kubernetes](/assets/img/kubernetes.webp)
 
 
-쿠버네티스 오프젝트 Deployment에 대한 배포 전략과 설정에 대해 학습한 것을 공유하는 글입니다.
+쿠버네티스 오브젝트 Deployment에 대한 배포 전략과 설정에 대해 학습한 것을 공유하는 글입니다.
 
 ## ReplicaSet을 이용한 배포 전략
 
@@ -78,7 +78,7 @@ spec:	# 사용자가 원하는 Pod의 바람직한 형태
     spec:
       containers:
       - name: my-app
-      image: my-app: 1.0
+      image: my-app:1.0
 
 ```
 
@@ -100,6 +100,8 @@ spec:	# 사용자가 원하는 Pod의 바람직한 형태
 
 즉, 모든 Pod이 종료되는 시점이 반드시 존재하며 그 동안에는 서비스를 이용할 수 없는 **다운타임**이 존재하게 된다.
 
+![deployment](/assets/img/2023-06-21-k8s-deployment/recreate2.webp)
+
 운영 단계에서는 적합하지 않다.
 
 ### RollingUpdate
@@ -110,9 +112,12 @@ spec:	# 사용자가 원하는 Pod의 바람직한 형태
 
 하나가 제거되면 하나가 생성되는 점진적인 방식으로 Pod를 교체한다.
 
+![deployment](/assets/img/2023-06-21-k8s-deployment/rollingUpdate2.webp)
+
+
 다운 타임이 존재하지 않지만, 두 버전의 Pod이 존재하는 시점에서 요청에 따라 응답이 다를 수 있다.
 
-이때 전환되는 Pod의 규모를 정하는 속도 제어 옵션은 다음과 같이
+이때 전환되는 Pod의 규모를 정하는 속도 제어 옵션은 다음과 같다.
 
 - maxUnavaliable: 배포를 하는 동안 유지하고자 하는 최소 Pod의 개수를 정하는 전략
 - maxSurge: 새로운 Pod을 한 시점에 최대 몇개까지 생성할 수 있게 하는지를 정하는 전략
