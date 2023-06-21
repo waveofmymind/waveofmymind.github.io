@@ -1,5 +1,5 @@
 ---
-title: "DB 레플리케이션 적용기(with AWS RDS)"
+title: "DB 리플리케이션 적용기(with AWS RDS)"
 date: 2023-06-19 09:29:00 +0900
 aliases: 
 tags: [MySQL,AWS,AWS RDS,Replication]
