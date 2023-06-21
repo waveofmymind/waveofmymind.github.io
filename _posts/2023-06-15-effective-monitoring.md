@@ -96,6 +96,7 @@ public class MetricConfig {
                 return new TimedAspect(registry);
         }
 }
+```
 
 위 설정이 없으면 동작하지 않으니 반드시 정의해야합니다.
 
