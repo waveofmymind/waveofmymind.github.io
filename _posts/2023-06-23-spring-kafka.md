@@ -1,5 +1,5 @@
 ---
-title: "Spring Kafka 사용하기"
+title: "Spring Kafka 예제"
 date: 2023-06-23 21:29:00 +0900
 aliases: 
 tags: [Spring,Spring Kafka,Kafka]
@@ -8,17 +8,16 @@ categories: [Spring]
 
 ![Kafka](/assets/img/kafka.webp)
 
-프로젝트에 비동기 처리를 위해 큐를 사용해야 할 일이 생겨 개인적으로 사용해보고 싶었던 카프카를 스프링에서 사용하는 예제를 공유하는 글입니다.
+프로젝트에 비동기 처리를 위해 큐를 사용해야 할 일이 생겼습니다.
+그래서 개인적으로 사용해보고 싶었던 카프카를 스프링에서 사용하는 예제를 공유하는 글입니다.
 
 카프카에 대한 설명은 하지 않습니다.
-
-환경: Spring Boot 3.1.0, Spring Kafka 3.0.8
 
 ## 준비 사항
 
 우선 의존성을 추가해줍니다.
 
-```
+```gradle
 implementation 'org.springframework.kafka:spring-kafka:3.0.8'
 ```
 
@@ -79,7 +78,7 @@ class KafkaController(
 class KafkaProducer(
 	private val KafkaTemplate<String, String> kafkaTemplate
 ) {
-	private val = TOPIC="Test"
+	private val= TOPIC="Test"
 
 	fun sendMessage(message: String) {
 		println(String.format("Produce message : %s", message))
@@ -96,10 +95,25 @@ class KafkaConsumer {
 		println(String.format("Consumed message : %s", message))
 	}
 }
+
 ```
 
-작성 중
+이제 기본적인 생성은 다 끝났습니다.
 
+이제 서버를 실행하고, 포스트맨으로 테스트를 해봅시다.
 
+저는 쿠버네티스에 카프카를 실행시켜놓았기 때문에, 콘솔로 접속해서 확인해보겠습니다.
+
+![Result](/assets/img/2023-06-23-spring-kafka-example/result1.webp)
+
+잘 연결이 된 것 같으니, 쿠버네티스 콘솔에서 토픽 수신을 대기해놓고, 포스트맨을 통해 요청해보겠습니다.
+
+![Result2](/assets/img/2023-06-23-spring-kafka-example/result2.webp)
+
+![Result3](/assets/img/2023-06-23-spring-kafka-example/postman.webp)
+
+![Result4](/assets/img/2023-06-23-spring-kafka-example/result3.webp)
+
+위와 같이 정상적으로 수신이 된 것을 확인할 수 있습니다.
 
 
