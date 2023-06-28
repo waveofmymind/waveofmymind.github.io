@@ -1,0 +1,137 @@
+---
+title: "헥사고날 아키텍처 적용기"
+date: 2023-06-28 09:29:00 +0900
+aliases: 
+tags: [Clean Architecture, Hexagonal Architecture]
+categories: [Spring]
+---
+
+![Hexagonal Architecture](/assets/img/2023-06-28-hexagonal-architecture/main.webp)
+
+프로젝트 진행 중, 생성 AI 서비스의 응답 결과를 저장하기 위한 도메인을 헥사고날 아키텍처로 구성하는 경험을 공유하고자합니다.
+
+기존의 레이어 패턴을 사용할 경우 Controller -> Service -> Repository 순으로 의존성을 가지게 됩니다.
+
+즉, 의존성이 아래로 흐르기 떄문에 도메인 계층에서 필요로 하는 의존성이 영속성 레이어에 계속 추가될 수 있습니다.
+
+이러한 점은 외부 시스템을 불가피하게 변경하게 될 때 문제가 발생하게 되는데, 추상화로 영속성 레이어와 도메인 레이어의 의존성을 역전시키더라도 예를 들어 Spring Data JPA가 제공하는 기술의 형태에 의존하게 됩니다.
+
+그래서 나온 것이 클린 아키텍처입니다.
+
+![Hexagonal Architecture](/assets/img/2023-06-28-hexagonal-architecture/clean-architecture.webp)
+
+레이어는 동심원으로 둘러싸여 있고, 이는 UseCase와 도메인 엔티티로 향하고 있습니다.
+
+이떄의 UseCase는 기존의 Service보다 좁은 기능 단위이기 때문에 커지는 Service 문제를 해결할 수 있습니다
+
+즉, 아래와 같이 구성되어집니다.
+
+![Hexagonal Architecture](/assets/img/2023-06-28-hexagonal-architecture/application-persistance.webp)
+
+이제 코어의 서비스 로직은 ORM 기술에 의존하지 않게 되며, 기술을 변경하게 되어도 변경이 전파되지 않게 됩니다.
+
+## 영속성 어댑터
+
+그렇다면, 서비스 로직에서 Out Port를 정의하고, 이를 구현한 영속성 어댑터는 어떻게 구현되어질까요?
+
+저는 Prediction이라는 클래스에 대한 비즈니스 클래스로 PredictionFacade를 구현했습니다.
+
+```java
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class PredictionFacade implements SavePredictionUseCase, FindPredictionUseCase {
+
+    private final SavePredictionPort savePredictionPort;
+    private final FindPredictionPort findPredictionPort;
+
+    @Override
+    @Transactional
+    public void savePrediction(PredictionServiceRequest request) {
+        Prediction prediction = request.toEntity();
+        savePredictionPort.savePrediction(prediction);
+    }
+
+    @Override
+    public Prediction getPrediction(Long memberId) {
+        return findPredictionPort.findPredictionByMemberId(memberId).orElseThrow(() -> new BusinessException(ErrorCode.PREDICTION_NOT_FOUND));
+    }
+
+    @Override
+    public List<Prediction> getPredictions(Long memberId) {
+        return findPredictionPort.findPredictionsByMemberId(memberId);
+    }
+}
+```
+
+UseCase에 대한 비즈니스 로직을 캡슐화하고, 외부의 요청을 비즈니스 로직으로 연결하는 역할을 하게 됩니다.
+
+그리고 SavePredictionPort와 FindPredictionPort입니다.
+
+```java
+public interface SavePredictionPort {
+
+    void savePrediction(Prediction prediction);
+}
+
+public interface FindPredictionPort {
+
+    Optional<Prediction> findPredictionByMemberId(Long memberId);
+
+    List<Prediction> findPredictionsByMemberId(Long memberId);
+
+}
+```
+
+그리고 이를 영속성 어댑터로서 PredictionPersistanceAdaptor라는 클래스를 정의했습니다.
+
+```java
+@RequiredArgsConstructor
+@Service
+public class PredictionPersistanceAdaptor implements SavePredictionPort, FindPredictionPort {
+
+    private final PredictionRepository predictionRepository;
+    @Override
+    public void savePrediction(Prediction prediction) {
+        predictionRepository.save(prediction);
+    }
+
+    @Override
+    public Optional<Prediction> findPredictionByMemberId(Long memberId) {
+        return predictionRepository.findByMemberId(memberId);
+    }
+
+    @Override
+    public List<Prediction> findPredictionsByMemberId(Long memberId) {
+        return predictionRepository.findAllByMemberId(memberId);
+    }
+}
+``` 
+
+PredictionRepository는 JpaRepository를 상속받은 인터페이스입니다.
+
+위 과정을 정리하면,
+
+UseCase를 묶은 PredictionFacade를 중심으로 기능별 포트가 존재하며, 이에 대한 외부 서비스의 접근으로 영속성 어댑터가 구현되어있습니다.
+
+
+결괴적으로, 도메인 코드가 더이상 외부 시스템에 의존하지 않게 되었습니다.
+
+또한 저수준인 포트, 어댑터가 UseCase를 의존하게 되었습니다.
+
+## 개발하면서 느낀점
+
+저는 MVC 중심의 레이어 패턴을 중심으로 스프링 부트 프로젝트를 개발해왔기에 클린 아키텍처를 접했을 때는 각 계층 클래스 명이 난해하고, 디렉토리 구조도 이해하기 어려웠습니다.
+
+또한 DTO의 경우도 Controller에서 Service, Service에서 Repository에 레이어 간 이동시에도 사용했었는데요.
+
+그렇기 때문에 도메인과 영속성간의 강한 결합이 존재했고, 실제로 JPA에서 R2DBC나, 다른 ORM 기술을 사용하게 되었을 때 분리하는 것이 어려웠습니다.
+
+그래서 이번 기회에 실제로 크지 않은 규모의 비즈니스 로직을 구현할때 적용해보니 포트 인터페이스를 좁게 가져가면서 포트마다 다른 유연성을 가지고 개발을 할 수 있으면서도 도메인 계층이 완전히 분리될 수 있었습니다.
+
+또한 서비스 로직이 점점 비대해지는 문제가 있었는데, 이 또한 유즈케이스 단위로 분리하게 되어 명확히 코드를 파악할 수 있다는 장점이 있었습니다.
+
+
+
+
+
