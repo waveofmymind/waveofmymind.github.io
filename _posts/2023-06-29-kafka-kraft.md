@@ -80,19 +80,112 @@ KRaft모드는 이전 컨트롤러를 대체하고, KRaft 합의 프로토콜 �
 우선 카프카를 다운받아줍니다.
 
 ```sh
-wget https://downloads.apache.org/kafka/3.4.1/kafka_2.13-3.4.1.tgz
+wget https://downloads.apache.org/kafka/3.4.1/kafka_2.13-3.5.0.tgz
 
-tar xvf kafka_2.13-3.4.1.tgz -C /usr/local
+tar xvf kafka_2.13-3.5.0.tgz -C /usr/local
 ```
 
 압축을 풀 위치로 저는 /usr/local 폴더 내로 했습니다.
 
-작성 중
+그리고 편의성을 위해 심볼릭 링크를 생성해줍니다.
+
+```sh
+cd /usr/local
+
+ln -s. kafka_2.13-3.5.0 kafka
+```
+
+그리고 카프카 폴더로 가보면, config 폴더 내에 kraft 폴더가 존재함을 알 수 있습니다.
+
+이제 카프카를 실행시키기 위해 server.properties를 바꿔주어야합니다.
+
+kraft 폴더의 server.properties를 사용하면 됩니다.
+
+그 중, 아래와 같은 점을 고치면 됩니다.
+
+```
+process.roles=broker,controller
+node.id=0
+controller.quorum.voters=0@172.17.20.57:9093,1@172.17.20.58:9093,2@172.17.20.59:9093
+listeners=PLAINTEXT://:9092,CONTROLLER://:9093
+advertised.listeners=PLAINTEXT://172.17.20.57:9092
+controller.listener.names=CONTROLLER
+log.dirs=/tmp/kraft-combined-logs
+```
+
+특히, 이제 카프카 서버가 브로커의 역할을 함과 동시에 컨트롤러 역할도 할 수 있기 때문에 process.roles를 설정하는 것은 필수입니다.
+
+카프카 공식 리드미에서는 아래와 같이 예시를 들어 설명하고 있습니다.
+> So if you have 10 brokers and 3 controllers named controller1, controller2, controller3, you might have the following configuration on controller1:
+
+```
+process.roles=controller
+node.id=1
+listeners=CONTROLLER://controller1.example.com:9093
+controller.quorum.voters=1@controller1.example.com:9093,2@controller2.example.com:9093,3@controller3.example.com:9093
+```
+
+저는 위 설정에서 log.dirs에 대해서는 kafka 폴더와 같은 위치에 생성하려고
+
+```
+log.dirs=/usr/local/kafka/kraft-combined-logs
+
+mkdir -p /usr/local/kafka/kraft-combined-logs
+```
+
+로 변경해주었습니다.
+
+이제 서버를 실행하기 전에 format 명령을 해주어야하는데,
+
+클러스터 ID를 UUID를 직접 생성해야합니다.
+
+공식 리드미에 따르면 자동으로 생성되던 클러스터 ID 방식이 떄떄로는 오류를 모호하게 만들었다고 합니다.
+
+새 클러스터 ID는 `kafka-storage.sh`를 사용해서 생성해줍니다.
+
+```sh
+$ ./bin/kafka-storage.sh random-uuid
+xtzWWN4bTjitpL3kfd9s5g
+``` 
+
+이제 생성된 uuid를 복사하고, logs 폴더를 포맷해줍니다.
+
+```sh
+$ ./bin/kafka-storage.sh format -t <uuid> -c ./config/kraft/server.properties
+Formatting /tmp/kraft-combined-logs
+```
+
+위와 같이 Formatting 메시지가 나오면 성공입니다.
+
+이제 실행해봅시다.
+
+```sh
+$ ./bin/kafka-server-start.sh ./config/kraft/server.properties # 실행
+
+$ ./bin/kafka-server-start.sh -daemon config/kraft/server.properties # 백그라운드 실행
+...
+```
+
+성공적으로 포트가 오픈되었는지 확인해보면
+
+```sh
+sudo netstat -antp | grep 9092
+tcp6       0      0 :::9092                 :::*                    LISTEN      17397/java
+
+sudo netstat -antp | grep 9093
+tcp6       0      0 :::9093                 :::*                    LISTEN      17397/java          
+tcp6       0      0 10.178.0.2:9093         34.22.95.181:55582      ESTABLISHED 17397/java          
+tcp6       0      0 10.178.0.2:55582        34.22.95.181:9093       ESTABLISHED 17397/java          
+```
+
+위와 같이 나오면 성공입니다.
+
 
 ## 레퍼런스 
 
 - [CONFLUENT](https://developer.confluent.io/learn/kraft/)
 
+- [Kafka Kraft README](https://github.com/apache/kafka/blob/2.8/config/kraft/README.md)
 
 
 
