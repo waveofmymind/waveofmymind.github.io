@@ -1,6 +1,6 @@
 ---
 title: "주키퍼를 사용하지 않는 카프카 Kraft 모드"
-date: 2023-06-29 21:29:00 +0900
+date: 2023-06-29 17:29:00 +0900
 aliases: 
 tags: [Kafka,Kraft]
 categories: [Kafka]
