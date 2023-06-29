@@ -1,5 +1,5 @@
 ---
-title: "카프카 멀티 브로커 Kraft 모드"
+title: "멀티 브로커 카프카 Kraft 모드 적용기"
 date: 2023-06-29 17:29:00 +0900
 aliases: 
 tags: [Kafka,Kraft]
