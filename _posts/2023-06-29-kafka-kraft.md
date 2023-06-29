@@ -1,5 +1,5 @@
 ---
-title: "주키퍼를 사용하지 않는 카프카 Kraft 모드"
+title: "카프카 멀티 브로커 Kraft 모드"
 date: 2023-06-29 17:29:00 +0900
 aliases: 
 tags: [Kafka,Kraft]
@@ -180,6 +180,125 @@ tcp6       0      0 10.178.0.2:55582        34.22.95.181:9093       ESTABLISHED 
 
 위와 같이 나오면 성공입니다.
 
+## 멀티 브로커
+
+다음으로는 멀티 브로커를 KRaft 모드로 실행시키는 방법에 대해서 공유하려고 합니다.
+
+KRaft 모드가 정식으로 출시한지 얼마 되지 않아 정보가 너무 없어 파편화된 정보를 끌어모아 적용하게 되었습니다.
+
+우선, 위 첫번째 브로커를 생성할 때의 server.properties를 카피했습니다.
+
+저는 두번째 서버도 브로커와 컨트롤러의 역할을 하는 서버로 실행시킬 것이기 때문에 다음과 같이 적용했습니다.
+
+```sh
+process.roles=broker,controller
+node.id=1
+controller.quorum.voters=0@외부IP:9093,1@외부IP:9095
+listeners=PLAINTEXT://:9094,CONTROLLER://:9095
+advertised.listeners=PLAINTEXT://외부IP:9094
+controller.listener.names=CONTROLLER
+log.dirs=/usr/local/kakfa/kraft-combined-logs2
+```
+
+클라이언트에게 노출할 포트는 9094포트이고 컨트롤러 포트는 9095 포트로 설정했습니다.
+
+만약, 브로커마다 서버를 다르게 쓴다면, 컨트롤러 둘 다 9093 포트에 외부 IP만 다르게 해도 됩니다.
+
+그리고, log.dirs는 기존의 kraft-combined-logs2를 생성해서 바인딩해줍니다.
+
+### server.properties
+
+상기 실행했던 첫번째 서버에서도 두번째 서버의 컨트롤러 주소를 추가해주어야합니다.
+
+```
+controller.quorum.voters=0@외부IP:9093,1@외부IP:9095
+```
+
+server.properties의 위 voters에 두번째 서버(노드 번호 1)도 추가해줍니다.
+
+### 이제 설정은 끝났고 실행시키기만 하면 됩니다.
+
+## 트러블 슈팅
+
+**에러 로그 없이 종료되는 경우**
+
+간혹, 에러가 발생하지 않는데도 종료되는 이슈가 발생합니다.
+
+저도 처음에는 JVM 힙 이슈인 줄 알고 힙 설정을 따로 해주었지만, 마찬가지 증상이 지속되었고,
+
+카프카는 자바를 사용하기 때문에 `top` 명령어로 자바 프로세스의 사용량을 확인해볼 수 있는데
+
+`top` 명령어로 확인해보니 두번째 서버를 실행시킬 때 CPU 사용량이 100%를 넘어서 강제 종료가 되는 이슈가 있었습니다.
+
+**IllegaStateException이 발생할 때**
+
+server.properties에서 서버 2의 컨트롤러 주소를 입력하고 나서 서버 1을 재실행 했을때 발생한 이슈입니다.
+
+에러 로그는 다음과 같았습니다.
+
+```java
+java.lang.IllegalStateException: Configured voter set: [0, 1] is different from the voter set read from the state file: [0]. Check if the quorum configuration is up to date, or wipe out the local state file if necessary
+```
+이 에러 메시지는 Kafka 서버의 설정과 상태 파일 사이에 불일치가 있음을 나타냅니다.
+
+특히, 설정된 voter set은 [1, 2]이지만, 상태 파일에서 읽은 voter set은 [1]입니다. 이로 인해 Kafka 서버가 시작되지 못하고 있다는 이슈입니다.
+
+logs.dir을 설정했던 로그 파일을 포맷팅해야합니다.
+
+그러나 그냥 같은 명령어를 실행할 경우, 이미 포맷된 폴더라고 에러가 발생해서 저는 폴더를 지우고 재실행했습니다.
+
+**the loader is still catching up because we still don't know the high water mark yet.**
+
+두 서버를 스탑하고, 첫번째 서버를 다시 실행할 때 발생한 이슈입니다.
+
+위 로그가 반복되는 현상이 지속되었습니다.
+
+그리고 따라오는 이슈로는
+
+```java
+[RaftManager id=1] Node 2 disconnected. Connection to node 2 (/외부IP:9095) could not be established. Broker may not be available
+```
+
+서버2와 연결하지 못했다는 오류입니다.
+
+아까 server.properties에 서버2의 컨트롤러 주소를 voters에 추가해서, 서버1이 서버2와 한 클러스터 내에서 연결을 하기 위해 시도했지만, 아직 서버1만 실행중이기 때문에 찾지 못했다는 이슈인데요.
+
+저는 그래서 서버1을 백그라운드로 실행시키고, 서버2도 백그라운드로 실행시켰습니다.
+
+이제 9092,9093,9094,9095 포트가 오픈되었는지 확인해보면,
+
+```sh
+root@instance-1:/usr/local/kafka# sudo netstat -antp | grep 9092
+tcp6       0      0 :::9092                 :::*                    LISTEN      26269/java          
+root@instance-1:/usr/local/kafka# sudo netstat -antp | grep 9093
+tcp6       0      0 :::9093                 :::*                    LISTEN      26269/java          
+tcp6       0      0 10.178.0.2:43098        34.22.95.181:9093       ESTABLISHED 26692/java          
+tcp6       0      0 10.178.0.2:9093         34.22.95.181:43084      ESTABLISHED 26269/java          
+tcp6       0      0 10.178.0.2:43084        34.22.95.181:9093       ESTABLISHED 26269/java          
+tcp6       0      0 10.178.0.2:43114        34.22.95.181:9093       ESTABLISHED 26692/java          
+tcp6       0      0 10.178.0.2:9093         34.22.95.181:43114      ESTABLISHED 26269/java          
+tcp6       0      0 10.178.0.2:9093         34.22.95.181:43098      ESTABLISHED 26269/java          
+root@instance-1:/usr/local/kafka# sudo netstat -antp | grep 9094
+tcp6       0      0 :::9094                 :::*                    LISTEN      26692/java          
+root@instance-1:/usr/local/kafka# sudo netstat -antp | grep 9095
+tcp6       0      0 :::9095                 :::*                    LISTEN      26692/java
+```
+
+정상적으로 실행중인 것을 확인할 수 있습니다.
+
+저는 스프링 카프카를 사용하기 때문에 추가로 부트 스트랩 서버로 설정하고 연결을 시도해보았습니다.
+
+**서버 1**
+
+![Kafka New Quorum](/assets/img/2023-06-29-kafka-kraft/server1.webp)
+
+**서버 2**
+
+![Kafka New Quorum](/assets/img/2023-06-29-kafka-kraft/server2.webp)
+
+정상적으로 파티션을 할당 받았음을 보여줍니다.
+
+
 
 ## 레퍼런스 
 
@@ -187,6 +306,7 @@ tcp6       0      0 10.178.0.2:55582        34.22.95.181:9093       ESTABLISHED 
 
 - [Kafka Kraft README](https://github.com/apache/kafka/blob/2.8/config/kraft/README.md)
 
+- [Kraft mode + multiple brokers](https://docs.kafka-ui.provectus.io/configuration/complex-configuration-examples/kraft-mode-+-multiple-brokers)
 
 
 
