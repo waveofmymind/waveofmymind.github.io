@@ -1,6 +1,6 @@
 ---
 title: "Heap 영역 모니터링"
-date: 2023-06-01 10:12:00 +0900
+date: 2023-07-06 10:12:00 +0900
 aliases: 
 tags: [Heap,Heapdump,Java,JVM]
 categories: [Java]
