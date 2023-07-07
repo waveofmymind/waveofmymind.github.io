@@ -1,6 +1,6 @@
 ---
 title: "우아한 쿠버네티스 트래픽 대응기"
-date: 2023-05-18 9:29:00 +0900
+date: 2023-07-07 23:29:00 +0900
 aliases: 
 tags: [Kubernetes]
 categories: [DevOps]
