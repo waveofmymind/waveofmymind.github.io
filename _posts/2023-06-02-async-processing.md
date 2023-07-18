@@ -160,15 +160,13 @@ public ExpectedImproveResponse createdImprovementPointsAndAdvice(String job, Str
 
                     return objectMapper.readValue(futureResult, ExpectedImproveResponse.class);
                 } catch (JsonProcessingException e) {
-                    log.error(e.getMessage());
+                    log.error(e.getMessage(), e);
                     throw new BusinessException(ErrorCode.JSON_PARSING_FAILED);
                 }
             }, executorService);
 
             futures.add(future);
         }
-        log.info(futures.toString());
-        // 모든 CompletableFuture가 완료될 때까지 대기
         CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         try {
             allFutures.get();
@@ -177,7 +175,6 @@ public ExpectedImproveResponse createdImprovementPointsAndAdvice(String job, Str
             throw new BusinessException(ErrorCode.THREAD_MALFUNCTION);
         }
 
-        // CompletableFuture에서 결과를 추출해서 WhatGeneratedResponse 객체에 저장
         ExpectedImproveResponse result = new ExpectedImproveResponse();
         futures.stream()
                 .map(CompletableFuture::join)
@@ -187,47 +184,6 @@ public ExpectedImproveResponse createdImprovementPointsAndAdvice(String job, Str
         return result;
     }
 ```
-
-시간에 따른 검증 테스트는 곧 테스트 코드 작성 이후 보완할 예정입니다.
-
-## **TO-DO**
-
-현재 프로젝트가 자바 코드로 되어있기 때문에 자바의 비동기 작업을 위한 클래스를 사용했지만, 만약 Spring Webflux와 코루틴을 사용한다면 아래와 같이 코드를 깔끔하게 바꿀 수 있을 것 같습니다.
-
-```java
-suspend fun createdExpectedQuestionsAndAnswer(job: String, career: String, resumeData: List<ResumeRequest>): ExpectedImproveResponse {
-    val result = ConcurrentHashMap<String, MutableList<ImprovementResponse>>()
-
-    coroutineScope {
-        
-        val jobs = resumeData.map { data ->
-            launch {
-                try {
-                    val chatMessages = generateAdviceMessage(job, career, data.resumeType(), data.content())
-                    val chatCompletionResult = generate(chatMessages)
-                    val futureResult = chatCompletionResult.choices[0].message.content
-                    val response = objectMapper.readValue(futureResult, ExpectedImproveResponse::class.java)
-                    if (response.improvementResponse.isNotEmpty()) {
-                        result[data.resumeType()] = response.improvementResponse
-                    }
-                } catch (e: Exception) {
-                    log.error(e.message)
-                }
-            }
-        }
-
-        jobs.joinAll()
-    }
-
-    return WhatGeneratedImproveResponse(result)
-}
-```
-
-Thread-safety를 보장하기 위해 ConcurrentHashMap을 사용했고,
-
-각 코루틴에서 발생하는 예외를 try/catch 블록으로 처리하였습니다.
-
-또한 coroutineScope 밖에서 joinAll을 호출하여, 코루틴이 취소될 경우 모든 하위 코루틴이 취소되도록 하였습니다.
 
 ## **레퍼런스**
 
