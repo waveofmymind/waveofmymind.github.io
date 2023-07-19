@@ -1,5 +1,5 @@
 ---
-title: "JPA에서 PK를 직접 할당할 때의 주의점"
+title: "@GeneratedValue를 사용하지 않고, id를 직접 할당할 때의 주의점"
 date: 2023-07-19 3:6:27 +0900
 aliases: 
 tags: [JPA]

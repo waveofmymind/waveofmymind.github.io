@@ -1,5 +1,5 @@
 ---
-title: "카프카를 사용한 사용성 개선기"
+title: "이벤트 기반의 비동기 처리로 사용성 개선하기"
 date: 2023-06-28 21:29:00 +0900
 aliases: 
 tags: [Spring,Spring Kafka,Kafka]
