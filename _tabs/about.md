@@ -4,6 +4,6 @@ icon: fas fa-info-circle
 order: 4
 ---
 
-### Work in progess
+### waveofmymind
 
-Please wait for the next update! 🙏
+I am currently working on a variety of problems and solving them.
