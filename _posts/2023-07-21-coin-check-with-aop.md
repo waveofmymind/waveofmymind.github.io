@@ -18,7 +18,8 @@ categories: [Trouble Shooting]
 
 이때 1번과 2번은 추후 신규 서비스에서 코인을 이용하게 될 경우 쓰여질 수 있기 때문에 AI 서비스에서 사용했던 토큰 체크 및 감소 로직을 중복해서 사용하게 됩니다.
 
-저는 이러한 로직이 횡단 관심사라고 생각하여, AOP를 활용하여 Aspect로 분리한다면, 핵심 관심사로부터 분리하여 다양한 서비스에서도 사용할 수 있을 것이라고 생각했습니다
+저는 이러한 로직이 횡단 관심사라고 생각했습니다.
+이를 AOP를 활용해서 Aspect로 분리한다면, 핵심 관심사로부터 분리하여 다양한 서비스에서도 사용할 수 있을 것이라고 생각했습니다
 
 그러한 적용기를 공유하는 글입니다.
 
@@ -46,7 +47,7 @@ public String generateQuestion(@ModelAttribute CreatePromptRequest request) thro
     }
 ```
 
-우선 저희는 SSR을 사용중이기 때문에 JSON을 반환하지 않고, 특정 조건의 분기로 페이지가 이동하도록 되어있습니다.
+(저희는 SSR을 사용중이기 때문에 JSON을 반환하지 않고, 특정 조건의 분기로 페이지가 이동합니다.)
 
 위에서 코인 체크 및 감소 로직은 아래와 같습니다.
 
@@ -89,6 +90,80 @@ public boolean isServiceAvailable(Member member) {
 2. 코인이 1개 이상인 경우
 
 이러한 로직은 다른 서비스에서도 코인을 사용하게 될 경우 거의 동일 할 것인데요.
+
 회원을 사용하는 일반적인 로직이기 때문에 이를 분리하여 Aspect로 정의해도 추후 어노테이션만으로 코인 체크를 할 수 있을 것이라고 기대했습니다.
 
+## 스프링 AOP
+
+AOP는 Aspect Oriented Promgramming의 약자로 관점 지향 프로그래밍을 의미합니다.
+
+특정 로직에서 관심사를 기준으로 핵심, 부가로 나누어 관점을 기준으로 모듈화를 하는 것입니다.
+
+제 비즈니스 로직에서 핵심 관심사는 AI 서비스, 부가적인 관점은 코인 체크를 의미한다고 볼 수 있습니다.
+
+AOP에 대한 개념은 다루지 않고, 핵심 개념만 간단히 설명하겠습니다.
+
+### Join Point
+
+![joinPoint](/assets/img/2023-07-21-coin-check-with-aop/joinpoint.webp)
+
+말 그대로 진입점이라고 할 수 있습니다.
+
+타겟 내에서 AOP가 적용될 수 있는 위치를 의미합니다.
+
+### Aspect
+
+![aspect](/assets/img/2023-07-21-coin-check-with-aop/aspect.webp)
+
+가장 중요한 것으로, 횡단 관심사를 모듈화한 것입니다.
+
+그 외에는 PointCut도 있는데, 이는 위 JoinPoint 중 실제로 적용할 JoinPoint라고 생각하면 됩니다.
+
+세가지 개념을 정리하면 아래와 같이 나타낼 수 있습니다.
+
+![summary](/assets/img/2023-07-21-coin-check-with-aop/summary.webp)
+
+이를 스프링에서는 프록시 패턴으로 제공하고 있는데, 이유는 AOP를 추가하더라도 기존 코드 변경 없이 사용할 수 있기 때문입니다.
+
+## CoinCheckAspect
+
+우선 분리한 관심사를 모듈화한 Aspect를 정의해보겠습니다.
+
+```java
+@Slf4j
+@Aspect
+@RequiredArgsConstructor
+@Component
+public class CoinCheckAspect {
+
+    private final CoinUt coinUt;
+
+    private final MemberService memberService;
+
+    @Around("@annotation(com.goodjob.member.coin.CoinCheck)")
+    public Object coinCheck(ProceedingJoinPoint joinPoint) throws Throwable {
+        Object[] args = joinPoint.getArgs();
+
+        CreatePromptRequest request = (CreatePromptRequest) args[0];
+
+        Long memberId = request.getMemberId();
+
+        Member member = memberService.findMemberById(memberId);
+
+        boolean isServiceAvailable = coinUt.isServiceAvailable(member);
+
+        if (!isServiceAvailable) {
+            throw new BusinessException(ErrorCode.COIN_LACK);
+        }
+
+        return joinPoint.proceed();
+    }
+}
+```
+
+
 # 작성 중
+
+
+
+
