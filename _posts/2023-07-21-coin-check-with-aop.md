@@ -1,6 +1,6 @@
 ---
 title: "AOP를 활용한 토큰 체크 로직 분리하기"
-date: 2023-03-29 09:29:00 +0900
+date: 2023-07-21 09:29:00 +0900
 aliases: 
 tags: [Lock,JPA]
 categories: [Trouble Shooting]
