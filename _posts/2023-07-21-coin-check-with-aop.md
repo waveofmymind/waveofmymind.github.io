@@ -161,8 +161,79 @@ public class CoinCheckAspect {
 }
 ```
 
+### @Around
 
-# 작성 중
+이제 횡단 관심사에 대한 Aspect를 정의했으니 타겟 함수에 어떻게 적용할 것인지를 정해야하는데요.
+
+이때 사용되는 것이 @After, @Around, @Before입니다.
+
+**@Before("${pattern}")**
+- 지정한 패턴에 해당하는 함수가 실행되기 전에 인터셉터와 같이 동작합니다.
+- 이 어노테이션이 붙은 메서드는 리턴이 void여야합니다.
+
+**@After("${pattern}")**
+- 지정한 패턴에 해당하는 함수가 실행된 후에 동작합니다.
+- 마찬가지로 리턴이 void여야합니다.
+
+**@Around("${pattern}")**
+- 지정한 패턴에 해당하는 함수의 실행 전, 실행 후 모두 동작합니다.
+- 이 어노테이션이 붙은 함수의 반환값은 Object여야합니다.
+
+그리고 각 pattern은 pointcut 표현식으로, 패턴을 어떻게 적용할 것인지를 정하게됩니다.
+
+저는 어노테이션을 사용해서 Aspect를 적용할 것이기에 @CoinCheck 어노테이션을 지정했습니다.
+
+포인트 컷 작성 가이드는 [여기](https://www.baeldung.com/spring-aop-pointcut-tutorial)를 참고해주세요.
+
+## TO-BE
+
+이제 AOP를 적용한 후의 함수는 다음과 같아졌습니다.
+
+```java
+@PostMapping("/questions")
+@CoinCheck
+public String generateQuestion(@ModelAttribute CreatePromptRequest request) throws JsonProcessingException {
+    if (rq.getMember() == null) {
+        request.setMemberId(null);
+    } else {
+        request.setMemberId(rq.getMember().getId());
+
+        kafkaPredictionProducer.sendQuestionRequest(objectMapper.writeValueAsString(request));
+    }
+
+    return "resume/request-complete";
+}
+```
+
+(여기서 CreatePromtRequest는 단순 DTO이기 때문에 memberId에 대한 setter를 사용했습니다.)
+
+이제 코인 개수 체크 및 차감을 하는 로직을 분리시켰기 때문에
+
+해당 함수는 오직 질문을 생성하기 위해 카프카 프로듀서로 메시지를 보내는 역할만 하게 됩니다.
+
+이제 코인 개수가 정상적으로 차감되는지 확인해보겠습니다.
+
+![result1](/assets/img/2023-07-21-coin-check-with-aop/result1.webp)
+
+위 내용을 입력하고 제출을 누르면,
+
+![result2](/assets/img/2023-07-21-coin-check-with-aop/result2.webp)
+
+정상적으로 코인이 차감되었습니다.
+
+만약 코인을 사용하는 서비스가 생겨나더라도, 코인 체크 로직을 새로 구현할 필요 없이
+
+`@CoinCheck` 어노테이션으로 코인에 대한 검증과 감소 로직을 적용할 수 있게 되었습니다.
+
+
+
+
+
+
+
+
+
+
 
 
 
