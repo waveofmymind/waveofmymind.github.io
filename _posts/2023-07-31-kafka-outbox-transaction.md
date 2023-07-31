@@ -10,7 +10,7 @@ categories: [Trouble Shooting]
 
 이를 위한 사용자 요청으로부터의 플로우 차트는 아래와 같습니다.
 
-![flow](/assets/img/2023-07-28-kafka-transaction-outbox/flow.web)
+![flow](/assets/img/2023-07-31-kafka-transaction-outbox/flow.web)
 
 기존의 위 과정에서 문제점을 발견하고 어떻게 해결하게 되었는지를 공유하고자 합니다.
 
@@ -48,7 +48,7 @@ categories: [Trouble Shooting]
 
 ## 카프카에서 트랜잭션을 보장하는 방법
 
-![kt](/assets/img/2023-07-31-kafka-transaction/kt.webp)
+![kt](/assets/img/2023-07-31-kafka-transaction-outbox/kt.webp)
 
 카프카에서 메시지 발행 -> 컨슘 후 커밋 과정을 원자성을 보장하는 방법으로 카프카에서는 트랜잭션을 지원하고 있습니다.
 
