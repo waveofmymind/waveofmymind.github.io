@@ -1,6 +1,6 @@
 ---
 title: "서비스 원자성 보장하기 - 카프카 트랜잭션 아웃 박스 패턴"
-date: 2023-07-31 09:29:00 +0900
+date: 2023-07-30 09:29:00 +0900
 aliases: 
 tags: [Transaction,Kakfa,MQTT,Atomicity]
 categories: [Trouble Shooting]
@@ -10,7 +10,7 @@ categories: [Trouble Shooting]
 
 이를 위한 사용자 요청으로부터의 플로우 차트는 아래와 같습니다.
 
-![flow](/assets/img/2023-07-31-kafka-transaction-outbox/flow.webp)
+![flow](/assets/img/2023-07-30-kafka-transaction-outbox/flow.webp)
 
 기존의 위 과정에서 문제점을 발견하고 어떻게 해결하게 되었는지를 공유하고자 합니다.
 
@@ -48,7 +48,7 @@ categories: [Trouble Shooting]
 
 ## 카프카에서 트랜잭션을 보장하는 방법
 
-![kt](/assets/img/2023-07-31-kafka-transaction-outbox/kt.webp)
+![kt](/assets/img/2023-07-30-kafka-transaction-outbox/kt.webp)
 
 카프카에서 메시지 발행 -> 컨슘 후 커밋 과정을 원자성을 보장하는 방법으로 카프카에서는 트랜잭션을 지원하고 있습니다.
 
@@ -113,11 +113,99 @@ consumerProps.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed")
 
 위 과정에서 1번과 2번 사이의 일관성을 보장하지 못하게 됩니다.
 
-그래서 위 exactly once 세마틱스를 적용하고 아웃박스 트랜잭션 패턴을 적용하게 되었습니다.
+그래서 저는 exactly once 세멘틱을 적용하고 나서 추가적으로 사용자 요청 정보 - 메시지 발행을 보장할 수 있는 방법에 대해 고려해보게 되었습니다.
 
-## 아웃박스 트랜잭션
+## 아웃박스 트랜잭션 패턴
 
+최종적으로 저희 프로젝트에 적용한 패턴입니다.
 
+저는 처음에 사용자 요청 정보를 DB에 Insert 하는 트랜잭션을 기준으로 카프카 메시지를 발행하는 것을 고려했는데요.
+
+두가지 방법 다 문제가 있었습니다.
+
+1. Insert 트랜잭션 커밋 전에 메시지가 발행
+
+이 경우에는 발행 후 모종의 사유로 커밋이 실패할 경우 최종적으로 발행하지 말아야할 메시지가 발행되게 됩니다.
+
+2. Insert 커밋 이후 메시지 발행
+
+이 경우 Insert 커밋 후에 메시지가 발행하는 과정에서 오류가 발생하면 사용자 요청 정보는 DB에 들어갔지만, 메시지가 발행되지 않아 사용자는 응답을 받을 수 없습니다.
+
+이러한 점을 Transactional Outbox Pattern을 사용해서 해결할 수 있습니다.
+
+![outbox1](/assets/img/2023-07-30-kafka-transaction-outbox/outbox1.webp)
+> 이해를 돕기 위한 사진입니다.
+
+사용자 이력서 정보를 저장할 때 별도의 테이블로 발행할 메시지 정보도 저장합니다. 이 테이블을 `Outbox`라고 합니다.
+
+이렇게 되면 DB 트랜잭션에 의해 원자성을 보장받을 수 있기 때문에 이력서 정보와 메시지를 모두 저장하거나 저장하지 않게 됩니다.
+
+이렇게되면 위에서 언급했던 1번,2번 커밋 순서에 따른 문제점을 해결할 수 있습니다.
+
+그리고 메시지 발행을 스케줄링을 통해 일괄적으로 발행합니다.
+
+![outbox2](/assets/img/2023-07-30-kafka-transaction-outbox/outbox2.webp)
+> 이해를 돕기 위한 사진입니다.
+
+이를 통해 At-Least Once Delivery 전략이라고 합니다.
+
+저는 발행이 완료된 메시지에 대해서 process_status라는 필드를 통해 READY일 경우 발행, COMPLETE일 경우 발행하지 않게 했습니다.
+
+```kotlin
+@Entity
+class Outbox(
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long? = null,
+
+    var aggregateId: Long? = null,
+
+    @Enumerated(EnumType.STRING)
+    var aggregateType: AggregateType? = null,
+
+    var processStatus: ProcessStatus = ProcessStatus.READY
+) : BaseEntity()
+```
+
+```kotlin
+class OutboxEventHandler(
+    private val outboxRepository: OutBoxRepository,
+    private val producerAdapter: ProducerAdapter
+) {
+
+    @Scheduled(fixedRate = 1000)
+    fun publish() {
+        val outboxList = outboxRepository.read(10)
+        outboxList.forEach { 
+            it.let { 
+                producerAdapter.send(it)
+                it.sendComplete()
+            }
+        }
+    }
+}
+```
+
+그러나 At-Least Once는 결국 적어도 한번일 뿐 두번 보내게 될 수도 있는데요.
+
+이에 대해서는 아까 ENABLE_IDEMPOTENCE_CONFIG 설정을 true로 했기 때문에
+
+같은 메시지를 수신하면 PID를 통해 비교해보고 두번째 메시지를 처리하지 않게 됩니다.
+
+멱등성을 보장받을 수 있게 됩니다.
+
+즉, 트랜잭션의 원자성을 이용해서 발행해야할 메시지만을 발행하고, 이는 성공할 때까지 발행됩니다.(At Least Once)
+
+그리고 메시지를 여러번 수신하더라도 한번 수신한 것과 같이 처리하여, 최종적으로는 정확히 한번 처리됩니다.(Exactly-Once)
+
+## TO-BE
+
+![tobe](/assets/img/2023-07-30-kafka-transaction-outbox/tobe.webp)
+
+트랜잭션 아웃박스 패턴을 적용한 생성 AI 서비스 로직의 플로우 차트입니다.
+
+사용자가 보낸 메시지에 대해 분산 시스템 환경에서 메시지 처리를 보장하는 것이 중요하다고 생각해서 시작되었는데요.
+
+이 경험을 통해 카프카를 단순히 사용해보는 것 뿐만 아니라, 옵션에 대해 더 잘 이해할 수 있었습니다.
 
 ## 레퍼런스
 
