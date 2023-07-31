@@ -10,7 +10,7 @@ categories: [Trouble Shooting]
 
 이를 위한 사용자 요청으로부터의 플로우 차트는 아래와 같습니다.
 
-![flow](/assets/img/2023-07-31-kafka-transaction-outbox/flow.web)
+![flow](/assets/img/2023-07-31-kafka-transaction-outbox/flow.webp)
 
 기존의 위 과정에서 문제점을 발견하고 어떻게 해결하게 되었는지를 공유하고자 합니다.
 
