@@ -14,9 +14,9 @@ TTL을 5초정도로 짧게 가져가서 완전한 정합성을 포기하는 대
 
 그러나 문제는 부하 테스트 중 발견됬는데요.
 
-결국 5초가 지나면 캐시가 만료되고, 5초가 지난 바로 다음 요청은 캐시에 데이터가 없기 때문에 서버는 직접 요청에 대해 DB에 조회를 한 후 캐시에 쓰기 동작이 이루어집니다.
+5초가 지난 후 캐시가 만료되고, 여러 요청이 캐시 미스가 발생하여 동시에 여러번의 **select** 쿼리와, 캐시에 중복으로 쓰여지는 현상이 있었습니다.
 
-이렇게 DB에 갑작스럽게 많은 요청이 발생하는 것을 `Cache Stampede`라고 하며, 이러한 문제를 어떻게 해결했는지 공유하고자합니다.
+이러한 문제를 어떻게 해결했는지 공유하고자합니다.
 
 ## **Cache Stampede는 왜 발생할까?**
 
@@ -74,19 +74,6 @@ TTL을 설정하지 않고 배치 작업을 통해 캐시 데이터를 갱신시
 
 핫 키에 대해서 TTL 만료를 연장시킴으로써 연장이 지속적으로 이루어지기 때문에 `Cache Stampede` 발생을 막을 수 있습니다.
 
-```python
-def fetch_aot(key, expiry_gap_ms):
-    ttl_ms = redis.pttl(key) # pttl은 millisecond 단위
-
-    if ttl_ms - (random() * expiry_gap_ms) > 0:
-        return redis.get(key)
-
-    return None
-
-# Usage
-fetch_aot('foo', 2000)
-```
-
 또한 확률에 따라 갱신 확률이 높아지기 때문에 핫 키를 관리할 필요가 없습니다.
 
 그래서 저는 위 PER 알고리즘을 적용하기로 했습니다.
@@ -107,7 +94,7 @@ fetch_aot('foo', 2000)
 
 ### ∆(Recompute Time Interval)
 
-캐시를 다시 쓰는 과정입니다.
+캐시를 다시 쓰는 일련의 과정에 대한 시간을 나타냅니다.
 
 이 동작이 오래 걸릴수록 `Cache Stampede`가 발생하는 것이 문제를 더 크게 발생시킵니다.
 
@@ -127,7 +114,83 @@ rand()는 [0,1)의 범위의 균일 분포를 가진 난수를 생성하며,
 
 지수분포와 그에 대한 스케일링을 통해 캐시 항목의 재계산 시간을 고려합니다.
 
-**게시글 작성 중**
+
+## 적용 로직
+
+```koltin
+@Cacheable(value = "articles", key = "#page.pageNumber")
+override fun getArticleList(page: Pageable): FindArticleListResponse {
+    return articleRepository.findArticleList(page).stream().map { article ->
+        val user = userService.findUser(article.userId)
+        FindArticleResponse.from(article, user.email)
+    }.collect(Collectors.toList()).let { FindArticleListResponse.of(it) }
+}
+```
+
+```kotlin
+override fun getArticleList(page: Pageable): FindArticleListResponse {
+    val key = getReadAllArticleCacheKey(page)
+    return articleCacheService.probabilisticEarlyRecomputationGet(key, { args ->
+        articleRepository.findArticleList(page).stream().map { article ->
+            val user = userService.findUser(article.userId)
+            FindArticleResponse.from(article, user.email)
+        }.collect(Collectors.toList()).let { FindArticleListResponse.of(it) }
+    }, Collections.emptyList(), TTL) as FindArticleListResponse
+}
+```
+
+**작성 중**
+
+## 검증
+
+이제 다시 부하테스트를 통해 캐시 히트 확률이 얼마나 되는지 확인해보겠습니다.
+
+우선 테스트 환경은 다음과 같습니다.
+
+- AWS EC2 Ubuntu 22.04 LTS t2.micro (1v CPU, RAM 1GB)
+- AWS Elasticash Redis cache.t2.micro (싱글)
+- AWS RDS (MySQL) 프리티어
+
+그리고 JMeter 테스트는 다음과 같습니다.
+
+![jmeter](/assets/img/2023-08-02-improve-cache/jmeter.webp)
+
+그리고 각 요청들에 대해서 `page`를 랜덤으로 요청시키기 위해 사전처리기를 작성합니다.
+
+저는 평균 50, 표준편차 2의 정규분포에서 랜덤한 값을 생성시켰습니다.
+
+그리고 테스트는 각 5분동안 진행했습니다.
+
+### PER 알고리즘을 적용하지 않았을 때
+
+![not-per](/assets/img/2023-08-02-improve-cache/notper.webp)
+
+평균 TPS는 약 822.003이 나왔습니다.
+
+### 알고리즘 적용 후
+
+![per](/assets/img/2023-08-02-improve-cache/per.webp)
+
+평균 TPS는 약 860 정도가 나왔습니다.
+
+적용 전과 후의 평균 TPS는 비슷하지만, 그래프 양상이 다릅니다.
+
+첫번째 그래프는 만료되고나서 캐시 미스가 발생하기 때문에 `Cache Stampede`가 발생하고,
+
+그렇기 때문에 그래프의 낙폭이 현저하게 높습니다.
+
+두번째 그래프는 반대로 그래프가 안정적으로 보여집니다. 
+
+즉, 캐시 데이터가 만료 전에 갱신되기때문에 캐시 미스가 줄었기 떄문에, 평균적으로 안정적인 트래픽을 받아낼 수 있게 됬습니다.
+
+실제로 AWS Elasticache의 지표로 들어가서 확인해보면,
+
+![per](/assets/img/2023-08-02-improve-cache/cache.webp)
+
+첫번째가 알고리즘 적용 전으로 평균 86%의 히트율을 보이며, 알고리즘 적용 후에는 99.6%로 높은 히트율을 보여줍니다.
+
+테스트를 위해서 간단한 로직에 대해서 테스트를 진행했기 때문에 적용 후에 99.6%의 히트율을 보여주었지만, 더 복잡한 로직에 대해서는 점차 테스트를 할 예정입니다.
+
 
 
 
