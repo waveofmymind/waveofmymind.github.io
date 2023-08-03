@@ -1,7 +1,2 @@
-# songkg7.github.io
+# waveofmymind.github.io
 
-## How to Publish
-
-```bash
-bash ./tools/publish
-```

@@ -117,6 +117,8 @@ rand()는 [0,1)의 범위의 균일 분포를 가진 난수를 생성하며,
 
 ## 적용 로직
 
+단순히 캐시만 적용했었던 로직은 아래와 같습니다.
+
 ```kotlin
 @Cacheable(value = "articles", key = "#page.pageNumber")
 override fun getArticleList(page: Pageable): FindArticleListResponse {
@@ -127,10 +129,16 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
 }
 ```
 
+`@Cacheable`을 사용했기 때문에, `CacheConfig`에는 value가 `articles`일 경우 TTL을 5초로 설정했습니다.
+
+키값은 단순히 pageNumber만 주었습니다.
+
+그리고 다음으로는 Probabilistic Early Expiration 알고리즘을 적용했을 때의 로직입니다.
+
 ```kotlin
 override fun getArticleList(page: Pageable): FindArticleListResponse {
     val key = getReadAllArticleCacheKey(page)
-    return articleCacheService.probabilisticEarlyRecomputationGet(key, { args ->
+    return articleCacheService.perGet(key, { args ->
         articleRepository.findArticleList(page).stream().map { article ->
             val user = userService.findUser(article.userId)
             FindArticleResponse.from(article, user.email)
@@ -138,6 +146,50 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
     }, Collections.emptyList(), TTL) as FindArticleListResponse
 }
 ```
+
+우선 articleCacheService가 추가되었는데요.
+
+기존에 @Cacheable을 사용하면 키에 대한 TTL값을 가져올 수 없기 때문에 어노테이션이 아닌, 직접적으로 캐시에 쓰고 읽는 기능을 구현해야합니다.
+
+저는 Redis를 사용하기 때문에 RedisTemplate을 사용했습니다.
+
+```kotlin
+fun perGet(
+    originKey: String, 
+    recomputeValue: Function<List<Any>, Any>,
+    args: List<Any>, 
+    ttl: Int
+): Any? {
+    val key = hashtags(originKey)
+    val ret = redisTemplate.execute(cacheGetRedisScript, listOf(key, getDeltaKey(key))) as List<*>
+    val valueList = ret[0] as List<*>
+    val data = valueList[0]
+    val delta = valueList[1] as Long
+    val remainTtl = ret[1] as Long
+        
+    if (data == null || delta == null || remainTtl == null ||
+        -delta * BETA * kotlin.math.ln(randomDoubleGenerator.nextDouble()) >= remainTtl) {
+        val start = System.currentTimeMillis()
+        val computedData = recomputer.apply(args)
+        val computationTime = System.currentTimeMillis() - start
+        setKeyAndDeltaWithPipeline(ttl, key, computedData, computationTime)
+        return computedData
+    }
+        
+    return data
+}
+```
+
+주요 로직을 설명하면,
+
+1. originKey로 부터 실제 키를 가져옵니다.
+
+
+
+
+
+
+
 
 **작성 중**
 
