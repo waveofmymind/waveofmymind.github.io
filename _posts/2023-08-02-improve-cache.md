@@ -163,13 +163,13 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
 
 그리고 테스트는 각 5분동안 진행했습니다.
 
-### PER 알고리즘을 적용하지 않았을 때
+### 1. PER 알고리즘을 적용하지 않았을 때
 
 ![not-per](/assets/img/2023-08-02-improve-cache/notper.webp)
 
 평균 TPS는 약 822 정도가 나왔습니다.
 
-### 알고리즘 적용 후
+### 2. 알고리즘 적용 후
 
 ![per](/assets/img/2023-08-02-improve-cache/per.webp)
 
@@ -190,6 +190,14 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
 ![per](/assets/img/2023-08-02-improve-cache/cache.webp)
 
 첫번째가 알고리즘 적용 전으로 평균 86%의 히트율을 보이며, 알고리즘 적용 후에는 99.6%로 높은 히트율을 보여줍니다.
+
+그리고 마지막으로 RDS CPU 사용률을 체크해보겠습니다.
+
+![rds](/assets/img/2023-08-02-improve-cache/rds.webp)
+
+알고리즘 적용 전의 시간대는 `08:10~08:15`이고, 알고리즘 적용 후의 시간대는 `08:30~08:35`입니다.
+
+이전의 설명대로, `Cache Stampede`가 더 자주 발생한 알고리즘 적용 전 테스트가 높은 RDS CPU 사용률을 보여줍니다. 
 
 테스트를 위해서 간단한 로직에 대해서 테스트를 진행했기 때문에 적용 후에 99.6%의 히트율을 보여주었지만, 더 복잡한 로직에 대해서는 점차 테스트를 할 예정입니다.
 
