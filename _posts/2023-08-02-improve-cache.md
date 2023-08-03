@@ -117,7 +117,7 @@ rand()는 [0,1)의 범위의 균일 분포를 가진 난수를 생성하며,
 
 ## 적용 로직
 
-```koltin
+```kotlin
 @Cacheable(value = "articles", key = "#page.pageNumber")
 override fun getArticleList(page: Pageable): FindArticleListResponse {
     return articleRepository.findArticleList(page).stream().map { article ->
@@ -148,10 +148,12 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
 우선 테스트 환경은 다음과 같습니다.
 
 - AWS EC2 Ubuntu 22.04 LTS t2.micro (1v CPU, RAM 1GB)
-- AWS Elasticash Redis cache.t2.micro (싱글)
-- AWS RDS (MySQL) 프리티어
+- AWS Elasticashe Redis cache.t2.micro (싱글)
+- AWS RDS(MySQL) db.t3.micro 
 
-그리고 JMeter 테스트는 다음과 같습니다.
+모두 프리티어로 사용할 수 있는 환경입니다.
+
+그리고 테스트 조건은 다음과 같습니다.
 
 ![jmeter](/assets/img/2023-08-02-improve-cache/jmeter.webp)
 
@@ -165,7 +167,7 @@ override fun getArticleList(page: Pageable): FindArticleListResponse {
 
 ![not-per](/assets/img/2023-08-02-improve-cache/notper.webp)
 
-평균 TPS는 약 822.003이 나왔습니다.
+평균 TPS는 약 822 정도가 나왔습니다.
 
 ### 알고리즘 적용 후
 
