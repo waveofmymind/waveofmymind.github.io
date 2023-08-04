@@ -1,6 +1,6 @@
 ---
 title: "Cache Stampede 문제를 해결하기 위한 캐시 성능 개선 전략"
-date: 2023-08-02 09:29:00 +0900
+date: 2023-08-05 01:29:00 +0900
 aliases: 
 tags: [Cache,Redis]
 categories: [Trouble Shooting]
@@ -28,7 +28,7 @@ TTL을 5초정도로 짧게 가져가서 완전한 정합성을 포기하는 대
 
 AWS에서도 캐싱 전략으로 데이터를 최신 상태로 유지함과 동시에 복잡성을 줄이기 위해 TTL을 추가하는 것을 권장하고 있습니다.
 
-그러나 TTL을 설정하는 것은 트래픽이 많아질 경우 문제점이 될 수 있는데요.
+그러나 TTL을 설정하는 것은 트래픽이 많아질 경우 문제점이 됩니다.
 
 만약 많은 요청이 캐시 힛으로 데이터를 응답중에, 캐시 만료기간이 되면 어떻게 될까요?
 
@@ -42,7 +42,7 @@ AWS에서도 캐싱 전략으로 데이터를 최신 상태로 유지함과 동�
 
 즉 아래와 같이 그림으로 나타내어집니다.
 
-![Hot key](/assets/img/2023-08-02-improve-cache/p1.webp)
+![Hot key](/assets/img/2023-08-05-improve-cache/p1.webp)
 
 요청에 대해서 캐시에 데이터가 없을 경우 서버는 DB에서 데이터를 가져와 레디스에 저장하게 되는데,
 
@@ -80,7 +80,7 @@ TTL을 설정하지 않고 배치 작업을 통해 캐시 데이터를 갱신시
 
 ## PER 알고리즘 적용하기
 
-![PER](/assets/img/2023-08-02-improve-cache/p3.webp)
+![PER](/assets/img/2023-08-05-improve-cache/p3.webp)
 
 알고리즘을 적용했을 때의 로직은 다음과 같아집니다.
 
@@ -161,16 +161,16 @@ fun perGet(
     ttl: Int
 ): Any? {
     val key = hashtags(originKey)
-    val ret = redisTemplate.execute(cacheGetRedisScript, listOf(key, getDeltaKey(key))) as List<*>
-    val valueList = ret[0] as List<*>
+    val result = redisTemplate.execute(cacheGetRedisScript, listOf(key, getDeltaKey(key))) as List<*>
+    val valueList = result[0] as List<*>
     val data = valueList[0]
     val delta = valueList[1] as Long
-    val remainTtl = ret[1] as Long
+    val remainExpiryTime = result[1] as Long
         
-    if (data == null || delta == null || remainTtl == null ||
-        -delta * BETA * kotlin.math.ln(randomDoubleGenerator.nextDouble()) >= remainTtl) {
+    if (data == null || delta == null || remainExpiryTime == null ||
+        -delta * BETA * kotlin.math.ln(randomDoubleGenerator.nextDouble()) >= remainExpiryTime) {
         val start = System.currentTimeMillis()
-        val computedData = recomputer.apply(args)
+        val computedData = recomputeValue.apply(args)
         val computationTime = System.currentTimeMillis() - start
         setKeyAndDeltaWithPipeline(ttl, key, computedData, computationTime)
         return computedData
@@ -183,12 +183,11 @@ fun perGet(
 주요 로직을 설명하면,
 
 1. originKey로 부터 실제 키를 가져옵니다.
+2. execute()를 통해 luaScript에 정의한 명령어를 통해 값을 가져옵니다.
+3. 데이터가 없거나, 델타값이 없거나, 남은 만료시간이 없거나, 남은 시간이 `-∆βlog(rand())`보다 크거나 같을 경우 캐시의 값을 갱신시킵니다.
+4. 그리고 해당 값을 반환합니다.
 
-
-
-
-
-
+아까 이론적으로 설명했던 과정과 동일합니다.
 
 
 **작성 중**
@@ -207,7 +206,7 @@ fun perGet(
 
 그리고 테스트 조건은 다음과 같습니다.
 
-![jmeter](/assets/img/2023-08-02-improve-cache/jmeter.webp)
+![jmeter](/assets/img/2023-08-05-improve-cache/jmeter.webp)
 
 그리고 각 요청들에 대해서 `page`를 랜덤으로 요청시키기 위해 사전처리기를 작성합니다.
 
@@ -217,13 +216,13 @@ fun perGet(
 
 ### 1. PER 알고리즘을 적용하지 않았을 때
 
-![not-per](/assets/img/2023-08-02-improve-cache/notper.webp)
+![not-per](/assets/img/2023-08-05-improve-cache/notper.webp)
 
 평균 TPS는 약 822 정도가 나왔습니다.
 
 ### 2. 알고리즘 적용 후
 
-![per](/assets/img/2023-08-02-improve-cache/per.webp)
+![per](/assets/img/2023-08-05-improve-cache/per.webp)
 
 평균 TPS는 약 860 정도가 나왔습니다.
 
@@ -237,15 +236,24 @@ fun perGet(
 
 즉, 캐시 데이터가 만료 전에 갱신되기때문에 캐시 미스가 줄었기 떄문에, 평균적으로 안정적인 트래픽을 받아낼 수 있게 됬습니다.
 
-실제로 AWS Elasticache의 지표로 들어가서 확인해보면,
 
-![per](/assets/img/2023-08-02-improve-cache/cache.webp)
+AWS Elasticache의 지표로 들어가서 확인해보겠습니다.
+
+알고리즘 적용 전의 시간대는 `08:10~08:15`이고, 알고리즘 적용 후의 시간대는 `08:30~08:35`입니다.
+
+![per](/assets/img/2023-08-05-improve-cache/cache.webp)
 
 첫번째가 알고리즘 적용 전으로 평균 86%의 히트율을 보이며, 알고리즘 적용 후에는 99.6%로 높은 히트율을 보여줍니다.
 
+그리고 다음은 캐시 미스율입니다.
+
+![miss](/assets/img/2023-08-05-improve-cache/miss.webp)
+
+ 캐시 미스율이 평균 3.26k에서 0.3k로 10분의 1정도 줄어든 것을 확인할 수 있습니다.
+
 그리고 마지막으로 RDS CPU 사용률을 체크해보겠습니다.
 
-![rds](/assets/img/2023-08-02-improve-cache/rds.webp)
+![rds](/assets/img/2023-08-05-improve-cache/rds.webp)
 
 알고리즘 적용 전의 시간대는 `08:10~08:15`이고, 알고리즘 적용 후의 시간대는 `08:30~08:35`입니다.
 
