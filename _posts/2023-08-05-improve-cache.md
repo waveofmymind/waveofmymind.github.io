@@ -1,6 +1,6 @@
 ---
 title: "Cache Stampede 문제를 해결하기 위한 캐시 성능 개선 전략"
-date: 2023-08-05 01:29:00 +0900
+date: 2023-08-05 1:29:00 +0900
 aliases: 
 tags: [Cache,Redis]
 categories: [Trouble Shooting]
