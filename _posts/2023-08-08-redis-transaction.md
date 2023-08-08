@@ -65,21 +65,21 @@ class RedisService(
 
 	fun incr(key: String, isException:Boolean) {
 
-		redisTemplate.opsForValue().increment(key)
+	redisTemplate.opsForValue().increment(key)
 
-		if(isException) {
-			throw RuntimeException()
-		}
+	if(isException) {
+		throw RuntimeException()
+	}
 	}
 
-	fun incrAndGet(originKey: String, newKey: String, count: Int): Dto {
-		redisTemplate.opsForValue().increment(originkey, count)
+	fun incrAndNew(originKey: String, newKey: String, count: Int): Dto {
+	redisTemplate.opsForValue().increment(originkey, count)
 
-		val value = stringRedisTemplate.opsForValue().get(originKey)
+	val value = stringRedisTemplate.opsForValue().get(originKey)
 
-		stringRedisTemplate.opsForValue().set(newKey,value)
+	stringRedisTemplate.opsForValue().set(newKey,value)
 
-		return Dto(newKey, value)
+	return Dto(newKey, value)
 	}
 }
 ```
@@ -93,8 +93,48 @@ class RedisService(
 
 테스트를 통해 확인해보겠습니다.
 
+```kotlin
+"incr 메서드를 실행하면, 2가 반환된다." {
+	redisService.incr(ORIGIN_KEY, false)
 
- 
+	val value = redisTemplate.opsForValue().get(ORIGIN_KEY)
+
+	value shouldbe "2"
+}
+```
+
+위 메서드는 정상적으로 실행됩니다.
+
+ORIGIN_KEY의 value에 대해서 1만큼 증가시키고, 증가한 값을 다시 조회해서 2인지 확인하기 때문입니다.
+
+다음 테스트를 해보겠습니다.
+
+```kotlin
+"트랜잭션 내에서 예외가 발생하면 discard된다." {
+	assertThatThrownBy(() -> redisService.incr(ORIGIN_KEY, true)).isInstanceOf(RuntimeException.class)
+
+	val value = redisTemplage.opsForValue().get(key)
+
+	value shouldBe "1"
+}
+```
+
+기존의 `incr()` 메서드는 인자로 받은 key의 value에 대해서 1만큼 증가시키고 두번째 인자가 true일 경우 예외를 발생시키는데요.
+
+위 테스트에서는 incr()메서드가 실행되었지만, value가 그래도 1인 것을 확인할 수 있습니다.
+
+예상대로면 1이 증가하고 2가 된 상태에서 예외가 발생해야하는데, 트랜잭션 내에서 실패했기 때문에 모든 명령이 discard 된 것입니다.
+
+이처럼, Redis에서 트랜잭션 내에서 예외가 발생할 경우, 이전의 모든 명령어들에 대해서 discard 시키는 것을 확인할 수 있습니다.
+
+다음은 `incrAndNew()`메서드를 테스트해보겠습니다.
+
+
+
+
+
+
+![opsget](/assets/img/2023-08-08-redis-transaction/opsget.webp)
 
 
 
