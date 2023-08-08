@@ -1,6 +1,6 @@
 ---
 title: "레디스에서 트랜잭션을 보장하는 방법"
-date: 2023-08-08 09:29:00 +0900
+date: 2023-08-05 09:29:00 +0900
 aliases: 
 tags: [Redis,Transaction]
 categories: [Redis]
@@ -8,7 +8,8 @@ categories: [Redis]
 
 이전에 `multi`부터 `exec`까지의 명령어를 트랜잭션으로 하여금 명령어를 입력 순서대로 요청하는 트랜잭션 방식을 학습했었는데요.
 
-레디스 트랜잭션에 대한 주의점과 보완점에 대해서 공유하고자합니다.
+레디스 트랜잭션에 대한 주의점과 발생한 문제를 해결하기 위한 LuaScript의 사용,
+그리고 파이프라인에 대해서 공유하고자합니다.
 
 ## **레디스에서 트랜잭션을 보장하는 방법**
 
@@ -144,7 +145,7 @@ ORIGIN_KEY의 value에 대해서 1만큼 증가시키고, 증가한 값을 다�
 
 예외를 발생시키게 되며, incAndNew() 메서드 로직에 count만큼 증가시키는 것도 롤백이 된 것을 확인할 수 있습니다.
 
-![opsget](/assets/img/2023-08-08-redis-transaction/opsget.webp)
+![opsget](/assets/img/2023-08-05-redis-transaction/opsget.webp)
 
 실제로 `opsForValue().get(key)`를 보면, 파이프라인이나 트랜잭션 상황에서는 null을 반환하는 것을 알려주고 있습니다.
 
@@ -249,6 +250,36 @@ class RedisService(
 Redis는 싱글 스레드로 동작하기 때문에 병렬적인 요청에 대한 동시성 문제는 발생하지 않지만, 명령 순서에 따른 동시성 문제는 발생할 수 있습니다.
 
 LuaScript를 사용하면 Atomic을 보장하기 때문에 동시성 문제를 해결할 수 있습니다.
+
+## 레디스 파이프라이닝
+
+Redis도 결국 TCP 기반의 네트워크 통신을 통해 데이터를 주고받습니다.(RTT)
+
+즉, 하나의 요청을 보내면 하나의 응답을 반환하게 되는데요.
+
+이러한점은 결국 핸드쉐이킹을 여러번 열고 닫고 해야하기 때문에 잦은 컨텍스트 스위칭을 발생시키는 원인이 됩니다.
+
+이러한 점을 해결하기 위해서 레디스에서는 파이프라인을 구축하여 요청을 한꺼번에 보내고, 한번에 받는 것을 지원하고 있습니다.
+
+![pipeline](/assets/img/2023-08-05-redis-transaction/pipeline.webp)
+
+Spring Data Redis를 사용하는 경우, RedisTemplate에서 함수로 지원하고 있습니다.
+
+![executePipelined](/assets/img/2023-08-05-redis-transaction/executePipelined.webp)
+
+그러나 이는, sessionCallback 방식으로 사용되며,
+
+트랜잭션과 마찬가지로 로직 내에서의 조회 값을 다룰 수 없습니다.
+
+사용하게 된다면, 다수의 명령어를 실행할 때, 파이프라인을 통해서 요청을 한꺼번에 보낸다면, 성능상 이점을 가져갈 수 있을 것 같습니다.
+
+
+
+
+
+
+
+
 
 
 
