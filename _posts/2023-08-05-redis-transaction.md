@@ -273,11 +273,11 @@ Spring Data Redis를 사용하는 경우, RedisTemplate에서 함수로 지원�
 
 사용하게 된다면, 다수의 명령어를 실행할 때, 파이프라인을 통해서 요청을 한꺼번에 보낸다면, 성능상 이점을 가져갈 수 있을 것 같습니다.
 
+## 레퍼런스
 
-
-
-
-
+- [Redis 공식 문서](https://redis.io/docs)
+- [Atomicy with Lua](https://developer.redis.com/develop/java/spring/rate-limiting/fixed-window/reactive-lua/)
+- [Spring Data Redis](https://docs.spring.io/spring-data-redis/docs/current/reference/html/#redis)
 
 
 
