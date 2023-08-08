@@ -10,14 +10,14 @@ categories: [Redis]
 
 레디스 트랜잭션에 대한 주의점과 보완점에 대해서 공유하고자합니다.
 
-## 레디스에서 트랜잭션을 보장하는 방법
+## **레디스에서 트랜잭션을 보장하는 방법**
 
 기본적으로 4가지 명령어가 있습니다.
 
-1. multi: 트랜잭션을 시작하는 명령어, 이후의 명령은 queue에 저장됩니다.
-2. discard: 트랜잭션 내에서 discard를 입력하면, 이전에 입력했던 명령을 모두 버립니다.
-3. watch: 하나의 키에 대해서 낙관적 락을 걸어, 트랜잭션 도중 다른 커넥션에서 해당 키에 대해 변경을 주면, 트랜잭션 내의 명령어가 모두 실패합니다.
-4. exec: 트랜잭션을 커밋합니다.
+1. **multi**: 트랜잭션을 시작하는 명령어, 이후의 명령은 queue에 저장됩니다.
+2. **discard**: 트랜잭션 내에서 discard를 입력하면, 이전에 입력했던 명령을 모두 버립니다.
+3. **watch**: 하나의 키에 대해서 낙관적 락을 걸어, 트랜잭션 도중 다른 커넥션에서 해당 키에 대해 변경을 주면, 트랜잭션 내의 명령어가 모두 실패합니다.
+4. **exec**: 트랜잭션을 커밋합니다.
 
 그리고 주의할 점으로는 다음과 같습니다.
 
@@ -29,7 +29,7 @@ categories: [Redis]
 
 정도가 있습니다.
 
-## @Transactional을 사용한 레디스 트랜잭션
+## **@Transactional을 사용한 레디스 트랜잭션**
 
 우선, `@Transactional`을 통해 레디스 트랜잭션을 편리하게 사용하기 위해서는, redisTemplate에 옵션을 추가해야합니다.
 
@@ -113,7 +113,7 @@ ORIGIN_KEY의 value에 대해서 1만큼 증가시키고, 증가한 값을 다�
 "트랜잭션 내에서 예외가 발생하면 discard된다." {
 	assertThatThrownBy(() -> redisService.incr(ORIGIN_KEY, true)).isInstanceOf(RuntimeException.class)
 
-	val value = redisTemplage.opsForValue().get(key)
+	val value = redisTemplage.opsForValue().get(ORIGIN_KEY)
 
 	value shouldBe "1"
 }
@@ -128,13 +128,129 @@ ORIGIN_KEY의 value에 대해서 1만큼 증가시키고, 증가한 값을 다�
 이처럼, Redis에서 트랜잭션 내에서 예외가 발생할 경우, 이전의 모든 명령어들에 대해서 discard 시키는 것을 확인할 수 있습니다.
 
 다음은 `incrAndNew()`메서드를 테스트해보겠습니다.
+`ORIGIN_KEY`의 `value`를 조회하고 2만큼 증가시켜서 `NEW_KEY`에 대한 value로 저장하는 로직입니다.
 
+```
+"트랜잭션 내에서 값을 조회후 변경할 경우 discard된다." {
+	assertThatThrownBy(() -> redisService.incrAndNew(ORIGIN_KEY,NEW_KEY,2)).isInstanceOf(IllegalArgumentException.class)
 
+	val value = redisTemplate.opsForValue().get(ORIGIN_KEY)
+	
+	value shouldBe "1"
+}
+```
 
+그러나 위처럼 새로운 키에 대해 저장이 되지 않고,
 
-
+예외를 발생시키게 되며, incAndNew() 메서드 로직에 count만큼 증가시키는 것도 롤백이 된 것을 확인할 수 있습니다.
 
 ![opsget](/assets/img/2023-08-08-redis-transaction/opsget.webp)
+
+실제로 `opsForValue().get(key)`를 보면, 파이프라인이나 트랜잭션 상황에서는 null을 반환하는 것을 알려주고 있습니다.
+
+그렇기 때문에 트랜잭션 내부에서 메서드 로직 내에서 조회후, 데이터를 다룰 수 없습니다.
+
+이를 해결하기 위해 LuaScript를 사용할 수 있습니다.
+
+## **LuaScript**
+
+레디스 실행엔진 내부의 Lua 인터프리터를 활용해서 script를 실행할 수 있습니다.
+
+script에서 값을 체크할 수 있기 때문에 다른 명령어에 활용 또한 가능합니다.
+
+그리고 가장 중요한 장점인, 원자성을 보장합니다. 때문에 동시성 문제에 대해서 안전합니다.
+
+사용하기 위해서 .lua 확장자로 script 파일을 작성합니다.
+
+### luaScript 작성
+
+**incr.lua**
+```
+redis.call("INCR", KEYS[1])
+```
+**incrAndNew.lua**
+```
+redis.call("INCRBY', KEYS[1], ARGV[1])
+local value = redis.call('GET', KEYS[1])
+redis.call('SET', KEYS[1], value)
+return value
+```
+
+- `INCRBY`는 지정한 값 만큼 증가하는 것이고, `INCR`은 1만큼 증가합니다.
+### Bean으로 등록하기
+
+```kotlin
+@Bean
+fun RedisScript<String> IncrAndNewScript() {
+	Resource script = ClassPathResource("/scripts/incrAndNew.lua")
+
+	return RedisScript.of(script, String.class)
+}
+
+@Bean
+fun RedisScript<Unit> IncrScript() {
+	Resource script = ClassPathResource("/scripts/incr.lua")
+
+	return RedisScript.of(script)
+}
+```
+
+### RedisScript 활용하기
+
+```kotlin
+@Service
+class RedisService(
+	private val redisTemplate: StringRedisTemplate,
+	private val incrAndNewScript: RedisScript<String> incrAndNewScript,
+	private val RedisScript<Unit> incrScript
+) {
+	fun incr(key: String, isException: Boolean) {
+		redisTemplate.excute(incrScript, immutableListOf(key))
+		if (isException) {
+			throw RuntimeException()
+		}
+	}
+
+	fun incrAndNew(originKey: String, newKey: String, count: Int): Dto {
+		val value = redisTemplate.excute(incrAndNewScript, immutableListOf(originKey, newKey), String.valueOf(count))
+
+		return Dto(newKey, value)
+	}
+}
+```
+
+이전에 실행했던 로직과 동일하지만 이번에는 incrAndCopy() 메서드가 정상적으로 실행됩니다.
+
+또한 이제 incr 메서드에서 값이 증가 후 예외가 발생해서 discard 되었던 것도 갓이 rollback되지 않게됩니다.
+
+```kotlin
+"incr 함수에서 예외가 발생할 경우에도 value는 2이다." {
+	assertThatThrownBy(() -> redisService.incr(ORIGIN_KEY, true)).isInstanceOf(RuntimeException.class)
+
+	val value = redisTemplate.opsForValue().get(ORIGIN_KEY)
+	value shouldBe "2"
+}
+
+"예외가 발생하지 않으면 NEW_KEY의 value는 3이다." {
+	val dto = redisService.incrAndNew(ORIGIN_KEY, NEW_KEY, 2)
+	val value = redisTemplate.
+	dto.value shouldBe "3"
+	dto.newKey shouldBe "NEW_KEY"
+
+	val originValue = redisTemplate.opsForValue().get(ORIGIN_KEY)
+	originValue shouldBe "3"
+}
+```
+
+트랜잭션을 사용하지 않기 때문에 예외가 발생해도 discard 되지 않아 데이터가 변경됩니다.
+
+이 경우에 다시 `@Transactional`을 사용할 경우 discard 됩니다.(트랜잭션에서 LuaScript를 사용할 수 있습니다.)
+
+Redis는 싱글 스레드로 동작하기 때문에 병렬적인 요청에 대한 동시성 문제는 발생하지 않지만, 명령 순서에 따른 동시성 문제는 발생할 수 있습니다.
+
+LuaScript를 사용하면 Atomic을 보장하기 때문에 동시성 문제를 해결할 수 있습니다.
+
+
 
 
 
