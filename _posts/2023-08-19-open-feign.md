@@ -45,12 +45,12 @@ class InterviewQuestionService(
 
 추가적으로 API 호출이 필요할 경우, 이러한 함수를 계속 구현하는 것은 번거로운 행위가 아닐 수 없습니다.
 
-그래서 나온 것이 `Spring Cloud OpenFeign`입니다.
+그래서 사용하게 된 것이 `Spring Cloud OpenFeign`입니다.
 
 
 ### **Spring Cloud OpenFeign**
 
-위에서 언급했던 것처럼, 선언형 HTTP Client입니다.
+위에서 언급했던 것처럼, **선언형 HTTP Client**입니다.
 
 어노테이션 기반으로 동작하기 때문에 적용하는 것이 매우 쉬우며,
 
@@ -99,12 +99,12 @@ class FeignConfig {
 
 ```kotlin
 @FeignClient(name = "generate-answer", url = "\${external.openai.url}", configuration = [FeignConfig::class])
-interface GenerateAnswerClient {
+interface InterviewQuestionClient {
 
     @PostMapping("/v1/chat/completions", consumes = ["application/json"])
-    fun generateAnswer(
-        request: GenerateAnswerRequest,
-    ): GenerateAnswerResponse
+    fun generateCompletion(
+        request: ChatCompletionRequest,
+    ): ChatCompletionResponse
 }
 ```
 
@@ -120,13 +120,13 @@ name의 경우 현재는 필요 없지만, 필수이므로 저는 특정 값을 
 
 ```kotlin
 @FeignClient(name = "generate-answer", url = "GENERATE_ANSWER_URL", configuration = [FeignConfig::class])
-interface GenerateAnswerClient {
+interface InterviewQuestionClient {
 
     @PostMapping("/v1/chat/completions", consumes = ["application/json"])
-    fun generateAnswer(
-    	URI uri,
-        request: GenerateAnswerRequest,
-    ): GenerateAnswerResponse
+    fun generateCompletion(
+    	URI uri, // 추가한 부분
+        request: ChatCompletionRequest,
+    ): ChatCompletionResponse
 }
 ```
 
@@ -198,6 +198,8 @@ logging:
 
 
 Client를 인터페이스로 생성했고, `@EnableFeignClients`도 선언했지만 빈으로 생성되지 않아 주입이 안되는 현상이 발생했습니다.
+
+GPT한테도 여쭤보았지만 부트 어플리케이션에 @EnableFeignClients를 붙이지 않아서라는 말만 반복됬습니다.
 
 이는 부트 어플리케이션 클래스가 아닌, 별도의 @Configuration 클래스로 생성할 때 발생한 문제였고,
 
