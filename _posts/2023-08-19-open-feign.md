@@ -12,7 +12,7 @@ categories: [Spring]
 
 선언형 HTTP Client인 `Spring Cloud OpenFeign`을 통해 외부 API 호출을 한 경험을 공유하고자 합니다.
 
-### RestTemplate
+### **RestTemplate**
 
 ```kotlin
 @Service
