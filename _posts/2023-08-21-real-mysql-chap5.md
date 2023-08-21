@@ -173,6 +173,10 @@ SELECT 쿼리는 언두 영역에 잠금을 걸 수 없기 때문에 데이터�
 
 SERIALIZABLE로 격리 수준을 설정하면 읽기 조차도 락을 얻어야한다.
 
+그러나 InnoDB에서는 갭 락과 네임드 락에 의해 REPEATABLE READ에서 팬텀 리드가 발생하지 않기 때문에,
+
+가급적 REPEATABLE READ 이상으로만 격리 수준을 선택하자.
+
 
 
 
