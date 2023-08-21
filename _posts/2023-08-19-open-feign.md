@@ -10,7 +10,7 @@ categories: [Spring]
 
 이에 대해서 기존의 `RestTemplate`을 사용하지 않고 
 
-선언형 HTTP Client인 `Spring Cloud OpenFeign`을 통해 외부 API 호출을 한 경험을 공유하고자합니다.
+선언형 HTTP Client인 `Spring Cloud OpenFeign`을 통해 외부 API 호출을 한 경험을 공유하고자 합니다.
 
 ### RestTemplate
 
@@ -48,7 +48,7 @@ class InterviewQuestionService(
 그래서 사용하게 된 것이 `Spring Cloud OpenFeign`입니다.
 
 
-### **Spring Cloud OpenFeign**
+### 📌 **Spring Cloud OpenFeign**
 
 위에서 언급했던 것처럼, **선언형 HTTP Client**입니다.
 
@@ -64,7 +64,7 @@ class InterviewQuestionService(
 
 우선 사용하는 방법을 먼저 알아보겠습니다.
 
-### **@EnableFeignClients**
+### 📌 **@EnableFeignClients**
 
 페인을 활성화하기 위해 필요한 어노테이션으로, 보통 Application 클래스에 많이 붙이곤 하는데요.
 
@@ -93,7 +93,7 @@ class FeignConfig {
 
 `@EnableFeignClients`에 특정 폴더 경로가 포함되어있는데, 이는 밑에서 설명하겠습니다.
 
-### **Client 구현하기**
+### 📌 **Client 구현하기**
 
 아까 어노테이션 기반의 인터페이스로 동작한다고 나와있듯이, 페인을 사용하기 위한 클라이언트 클래스를 구현해주어야합니다.
 
@@ -132,7 +132,7 @@ interface InterviewQuestionClient {
 
 사용하는 방법이 간단하지만, 저는 몇가지 설정을 더 해주었습니다.
 
-### Retry 설정
+### 📌 **Retry 설정**
 
 요청에 대해 재시도를 설정할 수 있습니다.
 
@@ -173,7 +173,7 @@ class FeignConfig {
 3. 세번째 호출(2번 과정) 실패시 5초 후 재시도
 4. 네번째 호출(3번 과정) 실패시 예외 발생
 
-### 로깅 설정
+### 📌 **로깅 설정**
 
 요청에 대해 로그를 남길 수 있습니다.
 
@@ -194,7 +194,7 @@ logging:
     resumarble.core.domain.gpt.client: DEBUG
 ```
 
-### Client 인터페이스를 주입받을 수 없을 때
+### 📌 **Client 인터페이스를 주입받을 수 없을 때**
 
 
 Client를 인터페이스로 생성했고, `@EnableFeignClients`도 선언했지만 빈으로 생성되지 않아 주입이 안되는 현상이 발생했습니다.
@@ -212,7 +212,7 @@ GPT한테도 여쭤보았지만 부트 어플리케이션에 @EnableFeignClients
 class FeignConfig
 ```
 
-### **레퍼런스**
+### 📌 **레퍼런스**
 
 - [Spring Cloud OpenFeign](https://docs.spring.io/spring-cloud-openfeign/docs/current/reference/html/)
 
