@@ -106,6 +106,87 @@ UPDATE시 지정한 조건에 인덱스가 있을 경우 인덱스에 해당하�
 
 반대로 인덱스가 하나도 없을 경우, 테이블 풀 스캔이 작동하며, 모든 레코드에 대해 잠금이 걸린다.
 
+## **MySQL의 격리 수준**
+
+여러 트랜잭션이 동시에 처리될 때 특정 트랜잭션에서 변경이나 조회하는 데이터를 볼 수 있게 허용할 지 말지를 결정한다.
+
+크게 4가지로 나뉜다.
+- READ UNCOMMITTED
+- READ COMMITTED
+- REPEATABLE READ
+- SERIALIZABLE
+
+그중 더티 리드라고 하는 READ UNCOMMITTED와 SERIALIZALBLE은 거의 사용하지 않는다.
+
+### **READ UNCOMMITTED**
+
+![read uncommitted](/assets/img/2023-08-21-real-mysql-chap5/read-uncommitted.webp)
+
+사용자 A의 트랜잭션에서 커밋 전에 반영한 내용이 사용자 B의 트랜잭션에서 조회할 수 있다.
+
+사용자 A의 트랜잭션이 롤백되어도 B는 정상 데이터로 판단하고 트랜잭션을 수행한다.(DIRTY READ)
+
+### **READ COMMITTED**
+
+![read committed](/assets/img/2023-08-21-real-mysql-chap5/read-committed.webp)
+
+커밋이 되지 않는 데이터는 조회되지 않는다.
+
+언두 로그를 사용하며, 값을 변경하면 테이블에는 반영되지만 변경 전의 데이터는 언두 로그로 백업된다.
+
+사용자 B의 트랜잭션에서 커밋 전의 테이블 데이터를 조회하면 백업된 언두 로그로부터의 'Lara'가 조회된다.
+
+그러나 여전히 `NON-REPEATABLE READ` 문제가 존재한다.
+
+![non repeatable-read](/assets/img/2023-08-21-real-mysql-chap5/non-repeatable-read.webp)
+
+사용자 B가 처음 조회했을 때 값이 없던 데이터가, 사용자 A의 트랜잭션이 값을 커밋한 후 다시 조회할 경우 값이 존재한다.
+
+이는 **하나의 트랜잭션에서는 항상 같은 결과를 보장한다**는 정합성의 불일치가 발생하게 된다.
+
+### **REPEATABLE READ**
+
+기본적으로 사용되는 잠금 수준
+
+![repeatable-read](/assets/img/2023-08-21-real-mysql-chap5/repeatable-read.webp)
+
+
+전에 언급했던 `NON REPEATABLE READ` 문제가 발생하지 않는다.
+
+변경된 값에 대해 롤백을 대비해서 MVCC(Multi Version Concurrency Control) 방식으로 언두 로그에 백업을 한다.
+
+READ COMMITTED도 언두 로그를 이용하지만, 트랜잭션 아이디를 통한 비교가 다르다.
+
+사진처럼, 사용자 B의 트랜잭션은 10번이며 사용자 A의 트랜잭션은 12번인 경우를 가정하자.
+
+10번 트랜잭션 내에서 조회하는 값들은 트랜잭션 ID가 10번 이전인 데이터만을 보게 된다.
+
+그렇지만 부정합의 문제는 여전히 존재하는데,
+
+![phantom-read](/assets/img/2023-08-21-real-mysql-chap5/phantom-read.webp)
+
+SELECT 쿼리는 언두 영역에 잠금을 걸 수 없기 때문에 데이터가 보였다 안보였다 하는 팬텀 리드가 발생한다.
+
+### SERIALIZABLE
+
+일반적으로 SELECT 쿼리는 Non-locking consistend read(잠금이 필요없는 일관된 읽기)로 수행되지만, 
+
+SERIALIZABLE로 격리 수준을 설정하면 읽기 조차도 락을 얻어야한다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
