@@ -8,6 +8,10 @@ categories: [DB]
 
 Real MySQL 8.0의 챕터 5. 트랜잭션과 잠금을 읽고 나중에 기억할만한 것들을 정리한 글입니다.
 
+주관적으로 느꼈을 때 필요하다고 생각한 것들만 정리한 것이기에, 본 책에는 더 많은 개념이 서술되어있습니다.
+
+꼭 본 책을 읽어보시길 권장합니다.
+
 ## **서론**
 
 트랜잭션은 작업의 원자성을 보장해주는 것, 보장해주지 못할 경우 Partial update가 발생한다.
@@ -177,6 +181,13 @@ SERIALIZABLE로 격리 수준을 설정하면 읽기 조차도 락을 얻어야�
 그러나 InnoDB에서는 갭 락과 네임드 락에 의해 REPEATABLE READ에서 팬텀 리드가 발생하지 않기 때문에,
 
 가급적 REPEATABLE READ 이상으로만 격리 수준을 선택하자.
+
+## **레퍼런스**
+
+- [Real MySQL 8.0](https://www.yes24.com/Product/Goods/103415627)
+
+- [이미지](https://jjingho.tistory.com/166)
+
 
 
 
