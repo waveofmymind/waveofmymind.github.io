@@ -1,5 +1,5 @@
 ---
-title: "테스트시 예외가 잡히지 않는 경우"
+title: "테스트시 ControllerAdvice에 의해 예외가 잡히지 않는 경우"
 date: 2023-08-27 10:12:00 +0900
 aliases: 
 tags: [kotest,test,unit test]
