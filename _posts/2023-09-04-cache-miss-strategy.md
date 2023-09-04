@@ -1,6 +1,6 @@
 ---
 title: "동시성 문제를 해결하기 위한 캐시 미스와 데이터베이스 부하 관리 전략"
-date: 2023-09-01 09:29:00 +0900
+date: 2023-09-04 09:29:00 +0900
 aliases: 
 tags: [Redis,Spring Data Redis,Cache,Cache Miss]
 categories: [Redis]
@@ -26,7 +26,7 @@ categories: [Redis]
 
 만약 캐시에 데이터가 없을 경우 `Cache Miss`가 발생하고, 해당 요청은 DB에서 데이터를 가져온 뒤 데이터를 캐시에 넣어주고 그 값을 반환합니다.
 
-![look aside](/assets/img/2023-09-01-cache-miss-strategy/lookaside.webp)
+![look aside](/assets/img/2023-09-04-cache-miss-strategy/lookaside.webp)
 
 이것을 `Lazy Loading`이라고도 합니다.
 
