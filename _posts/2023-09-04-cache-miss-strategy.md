@@ -36,15 +36,10 @@ categories: [Redis]
 
  특정 캐시 키에 대해서만 조회가 이루어질 경우에는 캐시 워밍 방법이 효과적일 것이라고 생각합니다.
 
-## **해결 방법 1: 캐시 락**
+## **문제 상황**
 
- 그렇다면 다시 상황으로 돌아가보면, 여러 요청이 특정 시간에 트래픽이 몰릴 경우
+우선 기본적인 테스트를 해보기 위해 구현한 게시글 엔티티와 게시글 조회에 대한 비즈니스 로직입니다.
 
- 다양한 데이터를 캐시에 올리는 것은 부담이 갈 수 있기 때문에 캐시 워밍은 선택하지 않았습니다.
-
- 그렇다면 동시에 들어온 요청 중, 처음 들어온 요청만 DB에 질의 -> 캐시에 저장하고, 그 이후 요청은 캐시 힛을 발생시켜서 DB로 몰리는 부하를 해결할 수 있을 것 같습니다.
-
-우선 락을 테스트하기 위해, 기본적인 도메인 클래스를 다음과 같이 정의했습니다.
 
 ```kotlin
 @Entity
@@ -61,25 +56,23 @@ class Article(
 )
 ```
 
-그리고, 테스트를 위해 간단히 구현해본 Look-Aside 방식의 게시글 조회 비즈니스 로직입니다.
+게시글 조회같은 경우 위에서 언급했던 `Look-Aside`방식으로 구현했습니다
 
-문제 발생 상황을 구현하기 위해 락은 사용하지 않았습니다.
+캐시에 선 조회후 값이 없을 경우 DB에 직접 질의하고, 반환된 값을 캐시에 저장하고 반환합니다.
 
 ```kotlin
 fun getArticle(articleId: Long): Article {
         val key = "article:$articleId"
 
-        redisTemplate.opsForValue().get(key)?.let {
+        return redisTemplate.opsForValue().get(key)?.let { cachedArticle ->
             log.info("cache hit")
-            return objectMapper.readValue(it, Article::class.java)
+            objectMapper.convertValue(cachedArticle, Article::class.java)
+        } ?: run {
+            log.info("cache miss")
+            articleRepository.findByIdOrNull(articleId)?.also { article ->
+                redisTemplate.opsForValue().set(key, article, 5L, TimeUnit.SECONDS)
+            } ?: throw Exception("not found")
         }
-        missCount++
-        log.info("cache miss: $missCount")
-        val article = articleRepository.findByIdOrNull(articleId) ?: throw Exception("Not found")
-
-        redisTemplate.opsForValue().set(key, objectMapper.writeValueAsString(article), 5L, TimeUnit.SECONDS)
-
-        return article
     }
 ```
 
@@ -96,6 +89,67 @@ fun getArticle(articleId: Long): Article {
 항상 캐시를 먼저 확인하기 때문에 cache hit을 기대했지만, 어떤 요청도 캐시를 타지 못했습니다.
 
 이는 모든 요청이 동시에 캐시 미스가 발생해서 DB에 쿼리가 모두 발생한 것입니다.
+
+## **락을 활용한 동시성 이슈 해결하기**
+
+같은 키 값으로 동시에 많은 요청이 오게되면 동일한 키에 대해서 락을 두어 해결할 수 있을 것 같습니다.
+
+### Redisson
+
+락을 사용하기 위해 Redisson을 사용합니다.
+
+`Lettuce`의 경우에도 락을 지원하고 있지만, retry, timeout하는 과정을 직접 구현해주어야한다는 번거로움이 있으며,
+
+`Redisson`의 경우 락 인터페이스를 지원하기 때문에 락 타임아웃과, 자동 해제와 같은 기능을 간단하게 사용할 수 있습니다.
+
+또한 `Lettuce`는 락이 해제되었는지 지속적으로 확인하는 스핀 락 방식으로 동작하기때문에 추후 더 많은 요청이 올 경우 Redis에 부하가 갈 수 있습니다.
+
+반면에 `Redisson`은 Pub/Sub 방식으로 락이 해제되면 Subscribe하는 클라이언트는 락을 헤제되었다는 신호를 받고 락 획득을 시도합니다.
+
+```kotlin
+fun getArticle(articleId: Long): Article {
+        val key = "article:$articleId"
+        val lockKey = "article:lock:$articleId"
+        val lock = redissonClient.getLock(lockKey)
+
+        try {
+            if (lock.tryLock(10, 10, TimeUnit.SECONDS)) {
+                return redisTemplate.opsForValue().get(key)?.let { cachedArticle ->
+                    log.info("cache hit")
+                    objectMapper.convertValue(cachedArticle, Article::class.java)
+                } ?: run {
+                    log.info("cache miss")
+                    articleRepository.findByIdOrNull(articleId)?.also { article ->
+                        redisTemplate.opsForValue().set(key, article, 5L, TimeUnit.SECONDS)
+                    } ?: throw Exception("not found")
+                }
+            } else {
+                throw Exception("Could not acquire lock")
+            }
+        } finally {
+            if (lock.isHeldByCurrentThread) {
+                lock.unlock()
+            }
+        }
+    }
+```
+
+락을 사용한 비즈니스 로직입니다.
+
+`tryLock()`에 첫번째 인자는 waitTime으로, 락 획득에 대기하는 시간입니다. 0으로 설정하면 딱 한번만 락 획득을 시도합니다.
+
+두번째 인자는 leaseTime으로, tryLock으로 Lock을 얻었을 때 락을 leaseTime만큼만 유지하고 해제합니다.
+
+이 로직으로 다시 10개의 동시 요청 테스트를 해보겠습니다.
+
+![result2](/assets/img/2023-09-04-cache-miss-strategy/result2.webp)
+
+저희가 원하는대로 10번의 동시 요청에 대해서 가장 먼저 온 요청 1개만 캐시 미스가 발생하고, 그 뒤 요청은 모두 캐시 힛이 발생한 것을 알 수 있습니다.
+
+
+
+
+
 
 
 
