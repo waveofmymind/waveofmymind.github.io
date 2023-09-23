@@ -24,11 +24,41 @@ categories: [Spring]
 
 그리고 DB 락을 추가했을 때, 성능이 어떻게 되는지도 비교해보겠습니다.
 
-## **JPA가 지원하는 락**
+## **AS-IS**
 
-데이터베이스까지 내려가기 전에, JPA를 사용할 경우 락을 지원받을 수 있습니다.
+'게시글 조회시 게시글의 조회수가 1만큼 증가한다.'라는 비즈니스 로직을 분산락을 사용해서 구현해봤습니다.
 
-비관적 락과 낙관적 락입니다.
+```kotlin
+fun increaseViewCountWithLock(articleId: Long) {
+        val key = "article:$articleId"
+
+        val lock = redissonClient.getLock(key)
+
+        try {
+            if (lock.tryLock(10, 10, TimeUnit.SECONDS)) {
+                val article = articleRepository.findByIdOrNull(articleId)?.also {
+                    it.increaseViewCount()
+                }
+                article?.let { articleRepository.save(it) }
+            } else {
+                throw LockingFailedException("락 획득 실패: $articleId")
+            }
+
+        } finally {
+            if (lock.isHeldByCurrentThread) {
+                lock.unlock()
+            }
+        }
+    }
+```
+조회수 증가시 락을 획득했을 경우에만 조회수를 증가시킵니다.
+
+락을 획득하지 못했을 때, 10초까지 기다려보고 그 이후에는 `LockingFailedException`이 발생합니다.
+
+이를 JMeter를 이용해서 테스트해보겠습니다.
+
+
+
 
 
 
