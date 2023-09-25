@@ -78,11 +78,15 @@ fun getArticleWithLock(articleId: Long): Article {
     try {
         if (lock.tryLock(10, 10, TimeUnit.SECONDS)) {
             // 락을 얻었을 때의 로직
-            return getArticleFromCacheOrDatabase(key, articleId)
+            return getArticleFromCacheOrDatabase(key, articleId).also {
+                increaseArticleViewCount(articleId)
+            }
         } else {
             // 락을 얻지 못했을 때의 로직
             log.warn("Could not acquire lock for articleId: $articleId")
-            return getArticleFromCacheOrDatabase(key, articleId)
+            return getArticleFromCacheOrDatabase(key, articleId).also {
+                increaseArticleViewCount(articleId)
+            }
         }
     } finally {
         if (lock.isHeldByCurrentThread) {
@@ -94,20 +98,120 @@ fun getArticleWithLock(articleId: Long): Article {
 private fun getArticleFromCacheOrDatabase(key: String, articleId: Long): Article {
     return redisTemplate.opsForValue().get(key)?.let { cachedArticle ->
         log.info("Cache hit")
-        objectMapper.convertValue(cachedArticle, Article::class.java).also {
-            it.increaseViewCount()
-        }
+        objectMapper.convertValue(cachedArticle, Article::class.java)
     } ?: run {
         log.info("Cache miss")
         articleRepository.findByIdOrNull(articleId)?.also { article ->
             redisTemplate.opsForValue().set(key, article, 5L, TimeUnit.SECONDS)
-            article.increaseViewCount()
-        }.also { it!!.increaseViewCount() } ?: throw ArticleNotFountException()
+        } ?: throw ArticleNotFoundException()
     }
+}
+
+@Transactional
+fun increaseArticleViewCount(articleId: Long) {
+    val article = articleRepository.findByIdOrNull(articleId) ?: throw ArticleNotFoundException()
+    article.increaseViewCount()
 }
 ```
 
-이제 10초 동안 락을 얻지 못해도 캐시를 조회할 수 있게됩니다.
+이제 10초 동안 락을 얻지 못할 경우에도 게시글을 조회할 수 있게됩니다.
+
+그러나 만약 레디스 서버가 다운되어있다면 어떻게 될까요?
+
+인자로 넘겼던 waitTime 의해 10초동안 락을 얻으려고 시도한 후 else문의 DB 요청을 하기 때문에, 모든 요청에 대해 10초가 소요됩니다.
+
+그리고 10초 후, 모든 요청이 DB로 몰리는 `Cache Stempede`가 재발생하게 됩니다.
+
+그래서 저는 이러한 딜레이 시간을 줄이기 위해 게시글 조회 로직의 속도를 체크해봤습니다.
+
+```
+2023-09-25T20:58:55.002+09:00  INFO 81992 --- [nio-8080-exec-7] com.example.application.ArticleService   : 게시글 조회 시작: 2023-09-25T20:58:55.002030
+Hibernate: 
+    select
+        a1_0.id,
+        a1_0.content,
+        a1_0.title,
+        a1_0.user_id,
+        a1_0.view_count 
+    from
+        article a1_0 
+    where
+        a1_0.id=?
+2023-09-25T20:58:55.004+09:00  INFO 81992 --- [nio-8080-exec-7] com.example.application.ArticleService   : 게시글 조회 종료: 2023-09-25T20:58:55.004056
+```
+조회가 걸리는 시간은 평균 약 2.026ms가 걸렸으므로, 네트워크 지연시간 등을 포함하여 대략 1초로 설정했습니다.
+
+조회시간은 서버 상태에 따라 가변적이며, Redis를 사용하기 때문에 네트워크를 타게 되어 조회 시간보다 넉넉하게 주어야합니다.
+
+```kotlin
+@Transactional(readOnly = true)
+fun getArticleWithLock(articleId: Long): Article {
+    val key = "article:$articleId"
+    val lockKey = "article:lock:$articleId"
+    val lock = redissonClient.getLock(lockKey)
+
+    try {
+        if (lock.tryLock(1, 10, TimeUnit.SECONDS)) {
+            // 락을 얻었을 때의 로직
+            return getArticleFromCacheOrDatabase(key, articleId).also {
+                increaseArticleViewCount(articleId)
+            }
+        } else {
+            // 락을 얻지 못했을 때의 로직
+            log.warn("Could not acquire lock for articleId: $articleId")
+            return getArticleFromCacheOrDatabase(key, articleId).also {
+                increaseArticleViewCount(articleId)
+            }
+        }
+    } finally {
+        if (lock.isHeldByCurrentThread) {
+            lock.unlock()
+        }
+    }
+}
+@Transactional(readOnly = true)
+private fun getArticleFromCacheOrDatabase(key: String, articleId: Long): Article {
+    return redisTemplate.opsForValue().get(key)?.let { cachedArticle ->
+        log.info("Cache hit")
+        objectMapper.convertValue(cachedArticle, Article::class.java)
+    } ?: run {
+        log.info("Cache miss")
+        articleRepository.findByIdOrNull(articleId)?.also { article ->
+            redisTemplate.opsForValue().set(key, article, 5L, TimeUnit.SECONDS)
+        } ?: throw ArticleNotFoundException()
+    }
+}
+
+@Transactional
+fun increaseArticleViewCount(articleId: Long) {
+    val article = articleRepository.findByIdOrNull(articleId) ?: throw ArticleNotFoundException()
+    article.increaseViewCount()
+}
+```
+
+## **별도의 락을 추가해서 보완하기**
+
+현재 락을 얻지 못할 경우에는 DB에 직접 조회하기 때문에
+
+만약 레디스 서버가 내려져있을 때에는 다시 동시성 이슈가 발생합니다.
+
+이러한 점을 보완하기 위해, JPA 락이나 DB 락을 추가로 활용해볼 수 있습니다.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
