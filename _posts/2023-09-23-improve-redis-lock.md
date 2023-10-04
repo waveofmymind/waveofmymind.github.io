@@ -1,5 +1,5 @@
 ---
-title: "분산락이 가지는 문제점과 보완 방법"
+title: "Redis를 사용한 분산락의 주의점과 보완 전략"
 date: 2023-09-27 00:29:00 +0900
 aliases: 
 tags: [Distributed Lock,DB Lock]
