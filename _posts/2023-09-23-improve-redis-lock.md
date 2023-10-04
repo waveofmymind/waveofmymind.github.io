@@ -158,8 +158,7 @@ fun getArticleWithLock(articleId: Long): Article {
             }
         } else {
             // 락을 얻지 못했을 때의 로직
-            log.warn("Could not acquire lock for articleId: $articleId")
-            return getArticleFromCacheOrDatabase(key, articleId).also {
+            return getArticleDirectlyFromDatabase(articleId).also {
                 increaseArticleViewCount(articleId)
             }
         }
@@ -169,7 +168,11 @@ fun getArticleWithLock(articleId: Long): Article {
         }
     }
 }
-@Transactional(readOnly = true)
+
+private fun getArticleDirectlyFromDatabase(articleId: Long): Article {
+    return articleRepository.findByIdOrNull(articleId) ?: throw EntityNotFoundException()
+}
+
 private fun getArticleFromCacheOrDatabase(key: String, articleId: Long): Article {
     return redisTemplate.opsForValue().get(key)?.let { cachedArticle ->
         log.info("Cache hit")
@@ -178,14 +181,8 @@ private fun getArticleFromCacheOrDatabase(key: String, articleId: Long): Article
         log.info("Cache miss")
         articleRepository.findByIdOrNull(articleId)?.also { article ->
             redisTemplate.opsForValue().set(key, article, 5L, TimeUnit.SECONDS)
-        } ?: throw ArticleNotFoundException()
+        } ?: throw EntityNotFoundException()
     }
-}
-
-@Transactional
-fun increaseArticleViewCount(articleId: Long) {
-    val article = articleRepository.findByIdOrNull(articleId) ?: throw ArticleNotFoundException()
-    article.increaseViewCount()
 }
 ```
 
@@ -249,6 +246,41 @@ and version = ?
 현재 로직은 단순히 조회수를 증가하는 것에 락을 사용해보기 위함이므로
 
 낙관적 락을 사용해서 동시성을 제어해보고자 합니다.
+
+## **낙관적 락을 적용한 로직**
+
+낙관적 락은 버전을 통해 엔티티를 관리하므로, 컬럼을 추가해주어야합니다.
+
+```kotlin
+@Entity
+@Table(name = "article")
+class Article(
+
+    @Version
+    var version: Long = 0L,
+
+    val content: String,
+
+    val title: String,
+
+    val userId: Long,
+
+    var viewCount: Int = 0,
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long = 0L
+
+    // ...
+) 
+```
+
+비즈니스 로직에는 변경할 필요 없이 컬럼 추가로 낙관적 락을 사용하는 것이 가능합니다.
+
+
+
+
+
 
 
 
