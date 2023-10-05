@@ -1,0 +1,96 @@
+---
+
+title: "코루틴을 사용한 예외 방지와 비동기적 저장 구현기"
+date: 2023-10-04 09:29:00 +0900
+aliases: 
+tags: [Kotlin,coroutine,Spring]
+categories: [Spring]
+
+---
+
+레주마블 프로젝트를 진행하면서 생성된 면접 예상 질문을 다루는 로직에서 코루틴을 사용한 경험을 공유하고자합니다.
+
+## **문제 발생**
+
+개발중인 레주마블 프로젝트의 면접 예상 질문 서비스는 다음과 같은 흐름으로 수행됩니다.
+
+```
+1. 클라이언트 요청
+2. OpenAi API를 통해 ChatCompletion 요청
+3. 결과 데이터를 DTO로 바인딩
+4. 응답
+```
+
+비회원임에도 활용할 수 있도록 하기 위해 별도의 저장, 권한 인증 없이 구현하게 되었는데요.
+
+그러던 중, 회원 서비스를 추가해서 회원이 면접 예상 질문 서비스를 사용하는 경우에는 DB에 자동 저장되어 추후 마이페이지에서 확인할 수 있도록 하면 좋겠다는 사안이 나왔습니다.
+
+처음에는 단순히 위 흐름에 DB에 저장하는 로직을 추가했지만, 
+
+DB에 저장하는 로직에서 예외가 발생할 경우 사용자가 결과 자체를 받아볼 수 없게 되는 문제가 발생했습니다.
+
+이는 저장 로직에서 예외가 전파되어 면접 예상 질문 생성 자체가 실패하게 되버리는 것인데요.
+
+결과는 생성되었으나 DB에 저장되지 못해서 사용자가 서비스를 이용하지 못하는 불편함이 있었습니다.
+
+저는 이 문제의 원인으로 면접 예상 질문 서비스를 이용하는 기능과 예상 질문을 저장하는 기능이 강하게 결합되어 있기 때문이라고 판단했습니다.
+
+그래서 저는 다음과 같은 해결 목표를 세웠습니다.
+
+```
+AS-IS: 면접 예상 질문 서비스가 DB 저장 로직에 영향을 받아 문제를 발생시킨다.
+HOW: 하나의 트랜잭션에서 수행되어 각각 별도의 트랜잭션으로 분리한다.
+WHAT: DB 저장 로직이 실패하더라도 면접 예상 질문 서비스는 이용할 수 있어야한다.
+```
+
+## **AS-IS**
+
+현재 면접 예상 질문을 생성하는 메서드는 아래와 같습니다.
+
+```kotlin
+@Transactional
+fun generateInterviewQuestion(command: InterviewQuestionCommand): InterviewQuestionResponse {
+	val prompt = promptReader.getPrompt(command.promptType)
+
+	val completionRequest = preparedCompletionRequest(command, prompt)
+
+	predictionWriter.savePrediction(openAiMapper.convertToCommand(command, completionResult))
+
+	return requestChatCompletion(completionRequest)
+}
+
+private fun requestChatCompletion(completionRequest: ChatCompletionRequest): InterviewQuestionResponse {
+        return openAiMapper.completionToInterviewQuestionResponse(
+            openAiService.requestChatCompletion(completionRequest)
+        )
+    }
+```
+
+정리하면,
+1. 면접 예상 질문에 따른 프롬프트 조회
+2. 조회한 프롬프트로 ChatCompletion을 요청하기 위한 List 생성
+3. OpenAiService를 통해 ChatCompletion을 요청하고, 응답으로 예상 질문 반환
+4. 면접 예상 질문 저장
+5. 응답
+
+이 로직이 하나의 트랜잭션으로 엮여있기 때문에 다양한 문제점이 발생하고 있습니다.
+
+예상 되는 문제 지점으로는
+
+1. OpenAiService는 ChatCompletion을 요청할 때 네트워크를 타기 때문에 네트워크 문제로 예외가 발생할 여지가 있음
+2. savePrediction을 통한 DB 저장이 문제가 발생할 경우 예외가 전파되고, 이에 따라 generateInterviewQuestion()이 실패함
+
+이 있었습니다.
+
+## 작성중
+
+
+
+
+
+
+
+
+
+
+
