@@ -75,14 +75,52 @@ private fun requestChatCompletion(completionRequest: ChatCompletionRequest): Int
 
 이 로직이 하나의 트랜잭션으로 엮여있기 때문에 다양한 문제점이 발생하고 있습니다.
 
-예상 되는 문제 지점으로는
+예상 되는 문제 지점으로는 다음과 같았습니다.
 
 1. OpenAiService는 ChatCompletion을 요청할 때 네트워크를 타기 때문에 네트워크 문제로 예외가 발생할 여지가 있음
 2. savePrediction을 통한 DB 저장이 문제가 발생할 경우 예외가 전파되고, 이에 따라 generateInterviewQuestion()이 실패함
 
-이 있었습니다.
+이를 개선하고자, 외부 API에 대한 호출을 트랜잭션 밖으로 빼고, 예상 질문이 생성되었다면 사용자는 내용이 저장되지 않더라도 결과를 확인할 수 있도록 강한 결합을 제거하는 것이 중요하다고 생각했습니다.
 
-## 작성중
+## 트랜잭션 전파 옵션 사용하기
+
+가장 먼저 떠오른 방법입니다.
+
+savePrediction()의 경우 별도의 트랜잭션으로 분리해서 부모 트랜잭션이 영향을 받지 않게 하는 것입니다.
+
+`@Transactional`의 기본 옵션은 `REQUIRED`로, 부모 트랜잭션이 존재하면 부모 트랜잭션으로 묶이고, 부모 트랜잭션이 없을 경우에만 새로운 트랜잭션을 생성합니다.
+
+이를 `REQUIRES_NEW` 옵션으로 변경하여 항상 새로운 트랜잭션이 생성되게 하면 되지 않을까라는 생각을 했습니다.
+
+그래서 아래와 같이 `REQUIRES_NEW`옵션을 주고, 테스트를 위해 예외를 던지는 로직으로 변경했습니다.
+
+```kotlin
+@Transactional(propagation = Propagation.REQUIRES_NEW)
+fun savePrediction(command: SavePredictionCommand) {
+	throw CustomException()
+}
+```
+
+```kotlin
+@Test
+fun test() {
+	val request = InterviewQuestionRequestFixture()
+	shouldNotThrowAny {
+		interviewQuestionFacade.generateInterviewQuestion(request)
+
+	}
+}
+```
+
+이제 위 테스트는 savePrediction()이 별도의 트랜잭션에서 동작하기 때문에 generateInterviewQuestion()에 영향을 주지 않고 테스트는 성공해야합니다.
+
+그러나 테스트는 실패했습니다.
+
+## **사진 첨부 예정**
+
+두 트랜잭션이 모두 롤백된 것을 확인할 수 있습니다.
+
+
 
 
 
