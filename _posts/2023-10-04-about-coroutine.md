@@ -97,7 +97,7 @@ savePrediction()의 경우 별도의 트랜잭션으로 분리해서 부모 트�
 ```kotlin
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 fun savePrediction(command: SavePredictionCommand) {
-	throw CustomException()
+	throw IllegalArgumentException()
 }
 ```
 
@@ -116,9 +116,41 @@ fun test() {
 
 그러나 테스트는 실패했습니다.
 
-## **사진 첨부 예정**
+![test-exception](/assets/img/2023-10-04-about-coroutine/test-exception.webp)
 
-두 트랜잭션이 모두 롤백된 것을 확인할 수 있습니다.
+generateInterviewQuestion()과 savePrediction()가 각각 실행될 때 새로운 트랜잭션을 얻었지만, `IllegalArgumentException`으로 트랜잭션이 롤백되었습니다.
+
+이를 통해 트랜잭션을 분리하더라도 예외가 전파되어 부모 메서드도 실패한다는 것을 알았습니다.
+
+이는 아래처럼 try-catch로 발생할 수 있는 예외를 잡는다면 부모 트랜잭션이 롤백되는 것을 방지할 수 있습니다.
+
+```kotlin
+@Transactional
+    public void generateInterviewQuestion(String request) {
+        try {
+            predictionWriter.savePrediction(request);
+        } catch (
+                IllegalArgumentException e) {
+            log.info("예외가 잡혔습니다.");
+        }
+    }
+```
+
+![test-exception2](/assets/img/2023-10-04-about-coroutine/test-exception2.webp)
+
+위처럼 predictionWriter의 트랜잭션만 예외가 발생하고 부모 트랜잭션에서는 예외가 발생하지 않았습니다.
+
+그러나 이는 예상 질문을 생성하는 로직에서 예상 질문을 다시 저장하고, 이에 대한 예외를 잡는 책임까지 갖게 되었습니다.
+
+또한 이는 추후 발생한 문제이지만, 예상 질문을 저장하는 로직 이후에 새로운 로직을 추가하는 경우가 문제가 됩니다.
+
+추가된 로직에서 예외가 발생하면 부모 로직에서 실패해야한다고 가정했을 때, 이미 예상 질문은 저장되었지만 사용자는 결과를 확인할 수 없는 문제가 있습니다.
+
+## **TO-BE**
+
+
+
+
 
 
 
