@@ -148,6 +148,71 @@ generateInterviewQuestion()과 savePrediction()가 각각 실행될 때 새로�
 
 ## **TO-BE**
 
+이를 해결하기 위해 트랜잭션의 범위를 좁히고 Prediction에 저장하는 것을 코루틴을 이용하여 비동기적으로 처리하고자 했습니다.
+
+코루틴을 활용하면 예상 질문을 생성해서 사용자는 결과를 확인할 수 있으며, 비동기적으로 트랜잭션을 생성해서 DB에 저장합니다.
+
+또한 예외가 발생할 경우 CoroutineExceptionHandler를 통해 예외가 전파되지 않고 손쉽게 핸들링 할 수 있습니다.
+
+다음과 같이 구현할 수 있었습니다.
+
+```kotlin
+fun generateInterviewQuestion(command: InterviewQuestionCommand): InterviewQuestionResponse {
+        val completionResult = loggingStopWatch {
+            val promptResponse = promptService.getPrompt(PromptType.INTERVIEW_QUESTION)
+            val completionRequest = prepareCompletionRequest(command, promptResponse)
+            requestChatCompletion(completionRequest)
+        }
+
+        predictionFacade.savePrediction(openAiMapper.completionToSavePredictionCommand(command, completionResult))
+
+        return completionResult
+    }
+// ...
+
+@Facade
+class PredictionFacade(
+    private val savePredictionUseCase: SavePredictionUseCase
+) {
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    fun savePrediction(command: SavePredictionCommand) {
+        scope.launch(handler) {
+            savePredictionUseCase.savePrediction(command.toDomain())
+        }
+    }
+
+    val handler = CoroutineExceptionHandler { _, throwable ->
+        loggingErrorMarking {
+            SAVE_PREDICTION_ERROR_MESSAGE + "${throwable.message}"
+        }
+    }
+
+    @PreDestroy
+    fun cleanUp() {
+        scope.cancel()
+    }
+
+    companion object {
+        private const val SAVE_PREDICTION_ERROR_MESSAGE = "면접 예상 질문 저장이 실패했습니다. 예외 메시지: "
+    }
+}
+```
+
+주의할 점은 `@Transactional`의 위치입니다.
+
+`@Transactional`은 스레드에 종속적이여서 코루틴의 경우 한단계 및의 경량 스레드 수준이기때문에 윗 스레드를 옮겨다닐 수 있습니다.
+
+이러한 점에서 트랜잭션 컨텍스트를 유지하는 것이 어려워질 수 있습니다.
+
+저는 그래서 savePrediction()에서 트랜잭션을 걸지 않고, 한단계 더 내려가서 
+SavePredictionUseCase의 메서드에 `@Transactional`을 사용했습니다.
+
+그리고 이제 generateInterviewQuestion()에서 외부 API를 타는 ChatCompletion을 요청하는 로직이 트랜잭션 범위의 밖에 있기 때문에 트랜잭션 내에 네트워크를 타지 않게 되었습니다.
+
+**작성중**
+
+
 
 
 
