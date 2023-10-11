@@ -1,6 +1,6 @@
 ---
 
-title: "코루틴을 사용한 트랜잭션 강결합 분리하기"
+title: "코루틴을 사용한 트랜잭션 강결합 문제 트러블 슈팅"
 date: 2023-10-04 09:29:00 +0900
 aliases: 
 tags: [Kotlin,coroutine,Spring]
