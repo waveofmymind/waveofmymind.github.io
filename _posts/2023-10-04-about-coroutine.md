@@ -210,22 +210,33 @@ SavePredictionUseCase의 메서드에 `@Transactional`을 사용했습니다.
 
 그리고 이제 generateInterviewQuestion()에서 외부 API를 타는 ChatCompletion을 요청하는 로직이 트랜잭션 범위의 밖에 있기 때문에 트랜잭션 내에 네트워크를 타지 않게 되었습니다.
 
-**작성중**
+### **검증**
 
+이제 부가적인 요청에 대해서 예외가 발생할 경우 메인 로직은 정상적으로 출력되는지 확인해보겠습니다.
 
+우선 UserRequestLogService의 saveUserRequestLog()에서 예외를 발생시킵니다.
 
+```kotlin
+@Service
+class UserRequestLogService(
+    private val userRequestLogRepository: UserRequestLogRepository
+) {
+    val scope = CoroutineScope(Dispatchers.IO)
+    fun saveUserRequestLog(command: UserRequestLogCommand) {
+        scope.launch(handler) {
+            throw IllegalStateException("예외가 발생합니다.")
+        }
+    }
+    // ...
+}
+```
 
+그리고 메인 로직을 실제로 수행해보면,
 
+![test-result](/assets/img/2023-10-04-about-coroutine/test-result.webp)
 
+위와 같이 예외가 로그에 남는 것을 확인할 수 있으며,
 
+![response](/assets/img/2023-10-04-about-coroutine/response.webp)
 
-
-
-
-
-
-
-
-
-
-
+결과는 정상적으로 출력되고, 200 응답을 받을 수 있게 되었습니다.
