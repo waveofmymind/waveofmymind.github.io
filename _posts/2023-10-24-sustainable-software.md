@@ -12,6 +12,8 @@ categories: [Spring]
 
 많은 사람들에게 언급되어진 '클린 코드'부터, 개인적으로 읽고 코드를 작성하는데 좋은 영감을 준 [내 코드가 그렇게 이상한가요?](https://www.yes24.com/Product/Goods/119287779)가 나에겐 그렇다.
 
+![My Code is Strange?](/assets/2023-10-24-sustainable-software/book1.webp)
+
 나는 남들과 마찬가지로 Java, Spring을 사용하는데 거리낌 없이 사용해왔고, 그때문에 다른 프레임워크나 언어를 사용할 필요성 또한 느끼지 못했다.
 
 개념조차 그렇다.
@@ -26,7 +28,10 @@ categories: [Spring]
 
 즉, 미래에도 지속이 가능하고 확장에도 용이한, 지속 성장이 가능한 코드를 작성하는 것에 목표가 생긴 것이다.
 
-그래서 이번 기회에 내 기존 코드를 리팩토링 하는 시간을 가지게 되었다.
+그래서 이번 기회에 내 기존 코드를 리팩토링 하는 시간을 가지고자 했다.
+
+![refactoring](/assets/2023-10-24-sustainable-software/refactoring.webp)
+
 
 ## **AS-IS**
 
