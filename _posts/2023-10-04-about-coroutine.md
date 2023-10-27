@@ -1,6 +1,6 @@
 ---
 
-title: "트랜잭션 강결합 문제 트러블 슈팅"
+title: "핵심 로직이 부가 로직에 영향을 받는 강결합 문제 트러블 슈팅"
 date: 2023-10-04 09:29:00 +0900
 aliases: 
 tags: [Kotlin,coroutine,Spring]
