@@ -22,7 +22,7 @@ categories: [Redis]
 
 또한 OpenAi의 API를 사용량이 일정 limit을 초과하면 유료로 과금이 되기 때문에, 중복 요청에 대한 서버쪽의 추가적인 과금을 막는 것은 중요합니다.
 
-그래서 처리율 제한 장치를 도입하여 사용자가 더블 클릭해서 같은 요청을 두 번 보내는 것을 막아보고자 했습니다.
+그래서 처리율 제한 장치를 도입하여 사용자가 더블 클릭해서 같은 요청을 두 번 보내는 것을 막아보고자 합니다.
 
 ## **처리율 제한 장치란?**
 
@@ -32,7 +32,7 @@ API 요청 횟수가 미리 정의된 임계치(ThreadHold)를 넘어서면 추�
 
 ### **처리율 제한 장치의 위치**
 
-이때 클라이언트 서버에서 요청을 막으면 되지 않는가 라는 생각을 할 수 있지만,
+이때 클라이언트 서버에서 요청을 막으면 되지 않는가? 라는 생각을 할 수 있지만,
 
 위변조가 쉽기 때문에 안정적으로 처리율을 제한할 수 없다는 문제가 있습니다.
 
@@ -57,7 +57,7 @@ API 요청 횟수가 미리 정의된 임계치(ThreadHold)를 넘어서면 추�
 
 컨테이너는 구분하려는 요청마다 개수가 달라집니다.
 
-예를 들어 IP마다 컨테이너가 필요할 수도, 로직별로 컨테이너를 둘 수도 있습니다.
+예를 들어 IP마다 컨테이너가 필요하거나, 로직별로 컨테이너를 둘 수도 있습니다.
 
 구현이 간단하지만 컨테이너가 토큰을 담을 수 있는 크기와 토큰을 어떤 주기마다 채울지를 튜닝해야합니다.
 
@@ -223,6 +223,102 @@ tryApiCall에서는 인자로 받은 key값으로 카운터를 조회하고, 임
 위와 같은 문제가 발생할 수 있기 때문입니다.
 
 카운터 값을 변경했으면 인자로 받은 함수를 그대로 수행 시킵니다.
+
+### **RateLimitAspect**
+
+이제 Aspect를 정의합니다.
+
+```kotlin
+@Aspect
+@Component
+class RateLimiterAspect(
+    @Qualifier("redisRateLimiter")
+    private val rateLimiter: RateLimiter
+) {
+    @Around("execution(* resumarble.core.domain.resume.facade.*.*(..))")
+    @Throws(Throwable::class)
+    fun interceptor(joinPoint: ProceedingJoinPoint) {
+        val limitRequestPerTime = getLimitRequestPerTimeAnnotationFromMethod(joinPoint)
+
+        if (limitRequestPerTime == null) {
+            joinPoint.proceed()
+            return
+        }
+
+        val uniqueKey = getUniqueKeyFromMethodParameter(joinPoint)
+        rateLimiter.tryApiCall(
+            composeKeyWithUniqueKey(limitRequestPerTime.prefix, uniqueKey, "ApiCounter"),
+            limitRequestPerTime,
+            joinPoint
+        )
+    }
+
+    private fun getLimitRequestPerTimeAnnotationFromMethod(joinPoint: ProceedingJoinPoint): LimitRequestPerTime? {
+        val signature = joinPoint.signature as MethodSignature
+        val method = signature.method
+        return method.getAnnotation(LimitRequestPerTime::class.java)
+    }
+
+    private fun getUniqueKeyFromMethodParameter(joinPoint: ProceedingJoinPoint): Long {
+        val parameters = joinPoint.args.toList()
+        return parameters[0] as Long
+    }
+
+    private fun composeKeyWithUniqueKey(prefix: String, uniqueId: Long, suffix: String): String {
+        return "$prefix:$uniqueId:$suffix"
+    }
+}
+```
+
+저는 resume 패키지의 비즈니스 로직을 담당하는 facade 패키지의 모든 클래스에 대해 포인트 컷을 적용했습니다.
+
+적용하더라도, 로직에서 메서드에 `@LimitRequestPerTime`이 붙지 않는 경우에는 수행하지 않습니다.
+
+그리고 유니크 키를 생성해야하는데, 제 메서드는 함수의 첫번째 인자로 userId를 받고 있기 때문에 parameters[0]은 userId 값이 됩니다.
+
+이를 이용해서 캐시에 사용할 유니크 키를 생성해줍니다.
+
+그리고 이제 아까 만들었던 RateLimiter의 tryApiCall()가 수행됩니다.
+
+저는 아래와 같이 사용하고 있습니다.
+
+```kotlin
+@LimitRequestPerTime(prefix = "generateInterviewQuestions", ttl = 5, count = 2, ttlTimeUnit = TimeUnit.SECONDS)
+    suspend fun generateInterviewQuestions(
+        userId: Long,
+        commands: List<InterviewQuestionCommand>
+    ): List<InterviewQuestion> {
+        return coroutineScope {
+            val deferreds = commands.map { command ->
+                async(Dispatchers.IO) {
+                    generateInterviewQuestion(command)
+                }
+            }
+            deferreds.awaitAll()
+                .flatten()
+        }
+    }
+```
+
+더블 클릭 문제를 해결하기 위해서 임계치를 2로 설정하고, 해당 카운터는 5초동안 TTL을 유지합니다.
+
+예를 들어 userId가 1인 경우, 카운터 키 값은 generateInterviewQuestions:userId:ApiCounter가 됩니다.
+
+## **검증**
+
+이제 카운터가 임계치에 도달하면 429 예외가 발생하는지 테스트해보겠습니다.
+
+제가 설정한 값으로는 5초 내에 두번 이상 요청할 경우 첫번째 요청 외에는 429 예외가 발생해야합니다.
+
+
+
+
+
+
+
+
+
+
 
  
 
