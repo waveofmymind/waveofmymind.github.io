@@ -148,11 +148,9 @@ generateInterviewQuestion()과 savePrediction()가 각각 실행될 때 새로�
 
 ## **TO-BE**
 
-이를 해결하기 위해 트랜잭션의 범위를 좁히고 Prediction에 저장하는 것을 코루틴을 이용하여 비동기적으로 처리하고자 했습니다.
+위에서 발생한 로직을 해결하기위해서 비동기로 예상 질문을 저장하고자 합니다.
 
-코루틴을 활용하면 예상 질문을 생성해서 사용자는 결과를 확인할 수 있으며, 비동기적으로 트랜잭션을 생성해서 DB에 저장합니다.
-
-또한 예외가 발생할 경우 CoroutineExceptionHandler를 통해 예외가 전파되지 않고 손쉽게 핸들링 할 수 있습니다.
+저는 코틀린을 사용하기에 `CompletableFuture`를 사용하지 않고 코루틴을 사용 했습니다.
 
 다음과 같이 구현할 수 있었습니다.
 
@@ -160,6 +158,7 @@ generateInterviewQuestion()과 savePrediction()가 각각 실행될 때 새로�
 fun generateInterviewQuestion(command: InterviewQuestionCommand): InterviewQuestionResponse {
         val completionResult = loggingStopWatch {
             val promptResponse = promptService.getPrompt(PromptType.INTERVIEW_QUESTION)
+
             val completionRequest = prepareCompletionRequest(command, promptResponse)
             requestChatCompletion(completionRequest)
         }
@@ -174,10 +173,9 @@ fun generateInterviewQuestion(command: InterviewQuestionCommand): InterviewQuest
 class PredictionFacade(
     private val savePredictionUseCase: SavePredictionUseCase
 ) {
-    private val scope = CoroutineScope(Dispatchers.IO)
 
     fun savePrediction(command: SavePredictionCommand) {
-        scope.launch(handler) {
+        CoroutineScope(Dispatchers.IO + handler).launch {
             savePredictionUseCase.savePrediction(command.toDomain())
         }
     }
@@ -188,18 +186,23 @@ class PredictionFacade(
         }
     }
 
-    @PreDestroy
-    fun cleanUp() {
-        scope.cancel()
-    }
-
     companion object {
         private const val SAVE_PREDICTION_ERROR_MESSAGE = "면접 예상 질문 저장이 실패했습니다. 예외 메시지: "
     }
 }
 ```
 
-주의할 점은 `@Transactional`의 위치입니다.
+가장 중요하게 생각했던 점은, Prediction이 저장될 때 예외가 격리되어야한다는 점이였습니다.
+
+또한 실패했을 경우 원인을 로그로 남길 수 있도록 별도의 로깅 처리를 할 필요가 있었는데요.
+
+이는 코루틴 스코프에서 CoroutineExceptionHandler를 활용할 수 있었습니다.
+
+launch(자식 코루틴)에서 발생한 예외가 부모 코루틴에서 핸들링할 수 있게 됩니다.
+
+이를 이용해서 실패할 경우 실패 원인에 대한 로그를 남길 수 있었습니다.
+
+그리고 주의할 점은 `@Transactional`의 위치입니다.
 
 `@Transactional`은 스레드에 종속적이여서 코루틴의 경우 한단계 및의 경량 스레드 수준이기때문에 윗 스레드를 옮겨다닐 수 있습니다.
 
