@@ -1,7 +1,7 @@
 ---
 
 title: "스프링 이벤트로 우아한 로그 저장하기"
-date: 2023-10-31 09:29:00 +0900
+date: 2023-12-31 09:29:00 +0900
 aliases: 
 tags: [Kotlin,Spring Event,Spring]
 categories: [Spring]
@@ -26,7 +26,6 @@ categories: [Spring]
 2. 둘 중 하나가 실패하더라도 나머지 하나에 대한 결과는 반환 되어져야한다.
 
 그렇기 때문에 동시에 들어온 요청을 순차적으로 처리할 필요성이 있습니다.
-
 
 
 
