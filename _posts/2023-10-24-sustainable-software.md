@@ -1,6 +1,6 @@
 ---
 
-title: "지속 성장 가능한 코드 리팩토링"
+title: "지속 성장 가능한 코드란 무엇일까? - 리팩토링"
 date: 2023-10-24 09:29:00 +0900
 aliases: 
 tags: [Kotlin,Spring]
